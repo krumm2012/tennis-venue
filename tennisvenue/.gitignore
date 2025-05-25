@@ -1,0 +1,40 @@
+# Unity generated folders
+tennisvenue/Library/
+tennisvenue/Temp/
+tennisvenue/Obj/
+tennisvenue/Build/
+tennisvenue/UserSettings/
+tennisvenue/MemoryCaptures/
+tennisvenue/ShaderCache/
+tennisvenue/StateCache/
+tennisvenue/PlayModeViewStates/
+tennisvenue/ScriptAssemblies/
+tennisvenue/PackageManager/
+tennisvenue/Bee/
+tennisvenue/PackageCache/
+
+# System/IDE files
+.DS_Store
+tennisvenue/.vs/
+tennisvenue/.idea/
+tennisvenue/.vscode/
+tennisvenue/.tmp/
+tennisvenue/.cache/
+
+# File types to ignore
+
+*.tmp
+*.bak
+*.swp
+*.user
+*.suo
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.bak.meta
+*.tmp.meta
