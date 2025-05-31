@@ -28,6 +28,10 @@ public class BallLauncher : MonoBehaviour
     public FlightTimeTracker flightTimeTracker;
     public AirResistanceSystem airResistanceSystem;
 
+    [Header("轨迹线拖动集成")]
+    public TrajectoryDragController trajectoryDragController;
+    public bool enableTrajectoryDrag = true;
+
     private float angle = 45f;
     private float speed = 20f;
     private float direction = 0f; // 0度为正前方
@@ -120,8 +124,20 @@ public class BallLauncher : MonoBehaviour
             DrawTrajectory(launchPoint.position, launchVelocity);
         }
 
-        // 按空格键或点击鼠标左键发射网球
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        // 检查是否有轨迹线拖动控制器，并且是否正在拖动
+        bool isDragging = false;
+        if (trajectoryDragController == null && enableTrajectoryDrag)
+        {
+            trajectoryDragController = FindObjectOfType<TrajectoryDragController>();
+        }
+
+        if (trajectoryDragController != null && enableTrajectoryDrag)
+        {
+            isDragging = trajectoryDragController.IsDragging;
+        }
+
+        // 按空格键发射网球，或者鼠标左键（但不在拖动轨迹线时）
+        if (Input.GetKeyDown(KeyCode.Space) || (Input.GetMouseButtonDown(0) && !isDragging))
         {
             LaunchBall(Vector3.zero); // 不需要目标点，直接发射
         }

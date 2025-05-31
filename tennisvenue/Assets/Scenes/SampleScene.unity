@@ -2032,6 +2032,8 @@ MonoBehaviour:
   gapLength: 0.15
   flightTimeTracker: {fileID: 0}
   airResistanceSystem: {fileID: 0}
+  trajectoryDragController: {fileID: 0}
+  enableTrajectoryDrag: 1
 --- !u!1 &766283467
 GameObject:
   m_ObjectHideFlags: 0
@@ -2133,6 +2135,60 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.8, y: 1.5, z: 0}
   m_LocalScale: {x: 0.1, y: 3, z: 11}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &782628375
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 782628377}
+  - component: {fileID: 782628376}
+  m_Layer: 0
+  m_Name: TennisCourtLineRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &782628376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 782628375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 068841274e79542f7a471d992ab205ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineMaterial: {fileID: 0}
+  lineWidth: 0.5
+  lineHeight: 0.005
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  courtLength: 8
+  courtWidth: 3.5
+  serviceLineDistance: 2
+  centerServiceLineLength: 1.3
+  showDebugInfo: 1
+  autoCreateOnStart: 1
+--- !u!4 &782628377
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 782628375}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2668,6 +2724,8 @@ MonoBehaviour:
   scrollSpeed: 2
   minY: 0.5
   maxY: 10
+  viewSwitchButton: {fileID: 0}
+  viewSwitchButtonText: {fileID: 0}
 --- !u!1 &981614565
 GameObject:
   m_ObjectHideFlags: 0
@@ -2778,6 +2836,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1082915166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1082915167}
+  m_Layer: 0
+  m_Name: UI Manager Setup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1082915167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1082915166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1111472301
 GameObject:
   m_ObjectHideFlags: 0
@@ -3661,6 +3750,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1487772540
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1487772542}
+  - component: {fileID: 1487772541}
+  m_Layer: 0
+  m_Name: TennisCourtLineTestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1487772541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487772540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e94ea8cac10f44e39b7e5d85eca76d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  autoTestOnStart: 1
+  testKey: 108
+  clearKey: 107
+--- !u!4 &1487772542
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487772540}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1522027323
 GameObject:
   m_ObjectHideFlags: 0
@@ -3933,6 +4069,83 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1615334424}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1664295232
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1664295233}
+  - component: {fileID: 1664295234}
+  m_Layer: 0
+  m_Name: Auto Setup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1664295233
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664295232}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.4854842, y: 0.37382182, z: -2.600676}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1664295234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664295232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0548d881ae4d04d2292bb221d6ce6f15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCanvas: {fileID: 0}
+  controlPanelPrefab: {fileID: 0}
+  launchButton: {fileID: 0}
+  resetButton: {fileID: 0}
+  clearBallsButton: {fileID: 0}
+  defaultViewButton: {fileID: 0}
+  backViewButton: {fileID: 0}
+  topViewButton: {fileID: 0}
+  sideViewButton: {fileID: 0}
+  closeViewButton: {fileID: 0}
+  panoramaViewButton: {fileID: 0}
+  swingTestButton: {fileID: 0}
+  heightAnalysisButton: {fileID: 0}
+  airResistanceButton: {fileID: 0}
+  landingPointButton: {fileID: 0}
+  impactMarkerButton: {fileID: 0}
+  trajectoryDragButton: {fileID: 0}
+  systemStatusButton: {fileID: 0}
+  clearHistoryButton: {fileID: 0}
+  toggleMarkersButton: {fileID: 0}
+  createTestBallButton: {fileID: 0}
+  diagnosticsButton: {fileID: 0}
+  autoPlayButton: {fileID: 0}
+  settingsButton: {fileID: 0}
+  helpButton: {fileID: 0}
+  fullscreenButton: {fileID: 0}
+  ballLauncher: {fileID: 0}
+  cameraController: {fileID: 0}
+  flightTimeTracker: {fileID: 0}
+  landingPointTracker: {fileID: 0}
+  bounceImpactMarker: {fileID: 0}
+  trajectoryDragController: {fileID: 0}
+  airResistanceSystem: {fileID: 0}
 --- !u!1 &1691706918
 GameObject:
   m_ObjectHideFlags: 0
@@ -4166,12 +4379,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e50e021509acc4da29a6aca3dc777131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  directionSlider: {fileID: 0}
-  directionText: {fileID: 0}
+  directionSlider: {fileID: 398333119}
+  directionText: {fileID: 216519777}
   ballLauncher: {fileID: 0}
   currentDirection: 0
-  minDirection: -45
-  maxDirection: 45
+  minDirection: -15
+  maxDirection: 15
 --- !u!4 &1786095086
 Transform:
   m_ObjectHideFlags: 0
@@ -4583,7 +4796,7 @@ Transform:
   m_GameObject: {fileID: 2015689830}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -1.6, y: 0.03, z: 3.1}
+  m_LocalPosition: {x: 0, y: 0.03, z: 3.1}
   m_LocalScale: {x: 1.6666665, y: 100, z: 1.6666665}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4893,3 +5106,7 @@ SceneRoots:
   - {fileID: 1880182667}
   - {fileID: 145724414}
   - {fileID: 487996618}
+  - {fileID: 1487772542}
+  - {fileID: 782628377}
+  - {fileID: 1082915167}
+  - {fileID: 1664295233}

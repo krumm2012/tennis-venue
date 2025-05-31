@@ -928,6 +928,9 @@ struct GL_t6DADDDEEA8D6A0E3199D23185414CD25C9F975B9  : public RuntimeObject
 struct GeometryUtility_tBB79CF06AD1CD20AF6D885AA1260260C09500C05  : public RuntimeObject
 {
 };
+struct Gizmos_t3E21117D6D9BE8EA75AF2B527176F9865E592171  : public RuntimeObject
+{
+};
 struct Graphics_t99CD970FFEA58171C70F54DF0C06D315BD452F2C  : public RuntimeObject
 {
 };
@@ -3790,6 +3793,9 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t RectOffset_get_right_m07C826B0BC79B0C
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t RectOffset_get_top_m82E49FB93A5BD417131136F5A7DBA0F251F10263 (RectOffset_t6358774A0DEEABA4586840CB9BC7DC88B39660B5* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t RectOffset_get_bottom_mDF9C1EC125F94245D5532C34FCFB65BE0F2A9D0B (RectOffset_t6358774A0DEEABA4586840CB9BC7DC88B39660B5* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void RectOffset_InternalDestroy_mFFF37ED69D9FDAE656F347FD3E6E36F7BEB0ACC1 (intptr_t ___0_ptr, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_from, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___1_to, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___1_size, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F* ___0_value, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Monitor_Exit_m05B2CF037E2214B3208198C282490A2A475653FA (RuntimeObject* ___0_obj, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Monitor_Enter_m3CDB589DA1300B513D55FDCFB52B63E879794149 (RuntimeObject* ___0_obj, bool* ___1_lockTaken, const RuntimeMethod* method) ;
 inline OrderBlock_t62FD6F6544F34B5298DEF2F77AAE446F269B7837 List_1_get_Item_mB65D799560ADD289EA08E717412A24EFADA7FB57 (List_1_tB663AF9B0DBD0D685E595C4B50CF1535137C768A* __this, int32_t ___0_index, const RuntimeMethod* method)
@@ -16152,6 +16158,59 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void LightingSettings_LightingSettingsDontStr
 	{
 		return;
 	}
+}
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawLine_mB139054F55D615637A39A3127AADB16043387F8A (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_from, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_to, const RuntimeMethod* method) 
+{
+	{
+		Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196((&___0_from), (&___1_to), NULL);
+		return;
+	}
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawWireCube_m343533B3955A2D04A8638280D0EF537274A1FD8B (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2 ___1_size, const RuntimeMethod* method) 
+{
+	{
+		Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E((&___0_center), (&___1_size), NULL);
+		return;
+	}
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_set_color_m53927A2741937484180B20B55F7F20F8F60C5797 (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F ___0_value, const RuntimeMethod* method) 
+{
+	{
+		Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E((&___0_value), NULL);
+		return;
+	}
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196 (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_from, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___1_to, const RuntimeMethod* method) 
+{
+	typedef void (*Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196_ftn) (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*);
+	static Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196_ftn _il2cpp_icall_func;
+	if (!_il2cpp_icall_func)
+	_il2cpp_icall_func = (Gizmos_DrawLine_Injected_m3E6D4983E30F5BA53921EAAB275012693FE5C196_ftn)il2cpp_codegen_resolve_icall ("UnityEngine.Gizmos::DrawLine_Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)");
+	_il2cpp_icall_func(___0_from, ___1_to);
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___0_center, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2* ___1_size, const RuntimeMethod* method) 
+{
+	typedef void (*Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E_ftn) (Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*, Vector3_t24C512C7B96BBABAD472002D0BA2BDA40A5A80B2*);
+	static Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E_ftn _il2cpp_icall_func;
+	if (!_il2cpp_icall_func)
+	_il2cpp_icall_func = (Gizmos_DrawWireCube_Injected_mBC171E20C047F2136BB036825CFF2504B18CC90E_ftn)il2cpp_codegen_resolve_icall ("UnityEngine.Gizmos::DrawWireCube_Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)");
+	_il2cpp_icall_func(___0_center, ___1_size);
+}
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F* ___0_value, const RuntimeMethod* method) 
+{
+	typedef void (*Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E_ftn) (Color_tD001788D726C3A7F1379BEED0260B9591F440C1F*);
+	static Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E_ftn _il2cpp_icall_func;
+	if (!_il2cpp_icall_func)
+	_il2cpp_icall_func = (Gizmos_set_color_Injected_m04C1D1D07A6B91B75FC5608101714B74609C637E_ftn)il2cpp_codegen_resolve_icall ("UnityEngine.Gizmos::set_color_Injected(UnityEngine.Color&)");
+	_il2cpp_icall_func(___0_value);
 }
 #ifdef __clang__
 #pragma clang diagnostic pop

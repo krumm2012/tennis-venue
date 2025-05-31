@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour
 {
@@ -16,10 +17,19 @@ public class CameraController : MonoBehaviour
     public float minY = 0.5f;
     public float maxY = 10f;
 
+    [Header("UI控制")]
+    public Button viewSwitchButton;
+    public Text viewSwitchButtonText;
+
     private Vector3 lastMousePosition;
     private bool isMouseDragging = false;
     private CameraPreset[] cameraPresets;
     private int currentPresetIndex = 0;
+
+    /// <summary>
+    /// 获取当前视角预设索引的公共属性
+    /// </summary>
+    public int CurrentPresetIndex => currentPresetIndex;
 
     [System.Serializable]
     public struct CameraPreset
@@ -35,6 +45,7 @@ public class CameraController : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
         InitializeCameraPresets();
+        SetupUI();
     }
 
     void Start()
@@ -59,8 +70,73 @@ public class CameraController : MonoBehaviour
             new CameraPreset { name = "俯视角度", position = new Vector3(0f, 8f, -2f), rotation = new Vector3(70f, 0f, 0f), fieldOfView = 50f },
             new CameraPreset { name = "侧面视角", position = new Vector3(-8f, 3f, 0f), rotation = new Vector3(15f, 90f, 0f), fieldOfView = 55f },
             new CameraPreset { name = "近距离观察", position = new Vector3(0f, 1.5f, -2f), rotation = new Vector3(5f, 0f, 0f), fieldOfView = 70f },
-            new CameraPreset { name = "全景视角", position = new Vector3(0f, 6f, -8f), rotation = new Vector3(35f, 0f, 0f), fieldOfView = 45f }
+            new CameraPreset { name = "全景视角", position = new Vector3(0f, 6f, -8f), rotation = new Vector3(35f, 0f, 0f), fieldOfView = 45f },
+            new CameraPreset { name = "后场视角", position = new Vector3(0f, 2f, 4.5f), rotation = new Vector3(10f, 180f, 0f), fieldOfView = 65f } // 新增后场视角
         };
+    }
+
+    void SetupUI()
+    {
+        // 如果没有指定UI按钮，尝试自动创建
+        if (viewSwitchButton == null)
+        {
+            CreateViewSwitchButton();
+        }
+
+        if (viewSwitchButton != null)
+        {
+            viewSwitchButton.onClick.AddListener(ToggleSimpleView);
+            UpdateButtonText();
+        }
+    }
+
+    void CreateViewSwitchButton()
+    {
+        // 查找Canvas
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogWarning("未找到Canvas，无法创建视角切换按钮");
+            return;
+        }
+
+        // 创建按钮GameObject
+        GameObject buttonObj = new GameObject("ViewSwitchButton");
+        buttonObj.transform.SetParent(canvas.transform, false);
+
+        // 添加RectTransform
+        RectTransform rectTransform = buttonObj.AddComponent<RectTransform>();
+        rectTransform.anchorMin = new Vector2(1, 1);
+        rectTransform.anchorMax = new Vector2(1, 1);
+        rectTransform.pivot = new Vector2(1, 1);
+        rectTransform.anchoredPosition = new Vector2(-20, -20);
+        rectTransform.sizeDelta = new Vector2(120, 40);
+
+        // 添加Image组件
+        Image buttonImage = buttonObj.AddComponent<Image>();
+        buttonImage.color = new Color(0.2f, 0.3f, 0.8f, 0.8f);
+
+        // 添加Button组件
+        viewSwitchButton = buttonObj.AddComponent<Button>();
+
+        // 创建文本子对象
+        GameObject textObj = new GameObject("Text");
+        textObj.transform.SetParent(buttonObj.transform, false);
+
+        RectTransform textRect = textObj.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        viewSwitchButtonText = textObj.AddComponent<Text>();
+        viewSwitchButtonText.text = "切换视角";
+        viewSwitchButtonText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        viewSwitchButtonText.fontSize = 14;
+        viewSwitchButtonText.color = Color.white;
+        viewSwitchButtonText.alignment = TextAnchor.MiddleCenter;
+
+        Debug.Log("✅ 已创建视角切换按钮");
     }
 
     void HandleKeyboardInput()
@@ -71,6 +147,11 @@ public class CameraController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F)) SetCameraPreset(2);
         if (Input.GetKeyDown(KeyCode.C)) SetCameraPreset(3);
         if (Input.GetKeyDown(KeyCode.V)) SetCameraPreset(4);
+        if (Input.GetKeyDown(KeyCode.B)) SetCameraPreset(5); // 新增B键切换到后场视角
+
+        // 数字键1和2用于简化视角切换
+        if (Input.GetKeyDown(KeyCode.Alpha1)) SetCameraPreset(0); // 默认视角
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SetCameraPreset(5); // 后场视角
 
         // WASD移动摄像机
         Vector3 movement = Vector3.zero;
@@ -137,18 +218,56 @@ public class CameraController : MonoBehaviour
         mainCamera.fieldOfView = preset.fieldOfView;
 
         Debug.Log("切换到 " + preset.name + " 视角");
+        UpdateButtonText();
+    }
+
+    /// <summary>
+    /// 简化的视角切换功能 - 在默认视角和后场视角之间切换
+    /// </summary>
+    public void ToggleSimpleView()
+    {
+        if (currentPresetIndex == 0)
+        {
+            SetCameraPreset(5); // 切换到后场视角
+        }
+        else
+        {
+            SetCameraPreset(0); // 切换到默认视角
+        }
+    }
+
+    void UpdateButtonText()
+    {
+        if (viewSwitchButtonText != null)
+        {
+            if (currentPresetIndex == 0)
+            {
+                viewSwitchButtonText.text = "后场视角";
+            }
+            else if (currentPresetIndex == 5)
+            {
+                viewSwitchButtonText.text = "默认视角";
+            }
+            else
+            {
+                viewSwitchButtonText.text = "切换视角";
+            }
+        }
     }
 
     void OnGUI()
     {
         if (enableKeyboardControl)
         {
-            GUILayout.BeginArea(new Rect(10, 10, 350, 200));
+            GUILayout.BeginArea(new Rect(10, 10, 350, 250));
             GUILayout.Box("摄像机控制说明:");
             GUILayout.Label("视角切换:");
             GUILayout.Label("  R键: 默认视角   T键: 俯视角度");
             GUILayout.Label("  F键: 侧面视角   C键: 近距离观察");
-            GUILayout.Label("  V键: 全景视角");
+            GUILayout.Label("  V键: 全景视角   B键: 后场视角");
+            GUILayout.Label("简化切换:");
+            GUILayout.Label("  1键: 默认视角   2键: 后场视角");
+            GUILayout.Label("  右上角按钮: 快速切换");
             GUILayout.Label("移动控制:");
             GUILayout.Label("  WASD: 移动摄像机   QE: 上下移动");
             GUILayout.Label("  鼠标滚轮: 前后移动");

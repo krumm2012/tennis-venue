@@ -952,6 +952,22 @@ void RegisterAllStrippedInternalCalls()
 
 	//End Registrations for type : UnityEngine.GeometryUtility
 
+	//Start Registrations for type : UnityEngine.Gizmos
+
+		//System.Void UnityEngine.Gizmos::DrawLine_Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)
+		void Register_UnityEngine_Gizmos_DrawLine_Injected();
+		Register_UnityEngine_Gizmos_DrawLine_Injected();
+
+		//System.Void UnityEngine.Gizmos::DrawWireCube_Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)
+		void Register_UnityEngine_Gizmos_DrawWireCube_Injected();
+		Register_UnityEngine_Gizmos_DrawWireCube_Injected();
+
+		//System.Void UnityEngine.Gizmos::set_color_Injected(UnityEngine.Color&)
+		void Register_UnityEngine_Gizmos_set_color_Injected();
+		Register_UnityEngine_Gizmos_set_color_Injected();
+
+	//End Registrations for type : UnityEngine.Gizmos
+
 	//Start Registrations for type : UnityEngine.GL
 
 		//System.Void UnityEngine.GL::Begin(System.Int32)
