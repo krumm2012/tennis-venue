@@ -73,14 +73,17 @@
     <Compile Include="Assets/Scripts/InstantBallFix.cs" />
     <Compile Include="Assets/Scripts/CameraUI.cs" />
     <Compile Include="Assets/Scripts/ExecuteWebGLBuild.cs" />
+    <Compile Include="Assets/Scripts/ConflictResolver.cs" />
     <Compile Include="Assets/Scripts/TennisVenueUIManager.cs" />
     <Compile Include="Assets/Scripts/TargetMarkersCreator.cs" />
     <Compile Include="Assets/Scripts/UIVisibilityTest.cs" />
     <Compile Include="Assets/Scripts/QuickRingTest.cs" />
+    <Compile Include="Assets/Scripts/UIEventDiagnostic.cs" />
     <Compile Include="Assets/Scripts/VisibleImpactTest.cs" />
     <Compile Include="Assets/Scripts/QuickVisibilityTest.cs" />
     <Compile Include="Assets/Scripts/TennisCourtLineTest.cs" />
     <Compile Include="Assets/Scripts/BounceTestDemo.cs" />
+    <Compile Include="Assets/Scripts/EnhancedFlightTimeTracker.cs" />
     <Compile Include="Assets/Scripts/AbnormalBallCleaner.cs" />
     <Compile Include="Assets/Scripts/AirResistanceSystem.cs" />
     <Compile Include="Assets/Scripts/SimpleLauncherFix.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="Assets/Scripts/FlightTimeTracker.cs" />
     <Compile Include="Assets/Scripts/QuickConflictCheck.cs" />
     <Compile Include="Assets/Scripts/UIStatusMonitor.cs" />
+    <Compile Include="Assets/Scripts/LaunchBallBugFixer.cs" />
     <Compile Include="Assets/Scripts/TrajectoryDragController.cs" />
     <Compile Include="Assets/Scripts/UIManagerSetup.cs" />
     <Compile Include="Assets/Scripts/LandingPointQuickTest.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Assets/Scripts/ScriptCompileFixer.cs" />
     <Compile Include="Assets/Scripts/QuickBallTest.cs" />
     <Compile Include="Assets/Scripts/TrajectoryDragTest.cs" />
+    <Compile Include="Assets/Scripts/SceneObjectDiagnostic.cs" />
     <Compile Include="Assets/Scripts/LineVisibilityTest.cs" />
     <Compile Include="Assets/Scripts/LauncherFixTest.cs" />
     <Compile Include="Assets/Scripts/TennisBallImpactFix.cs" />
@@ -123,6 +128,7 @@
     <Compile Include="Assets/Scripts/LandingPointDebugger.cs" />
     <Compile Include="Assets/Scripts/BounceFixTester.cs" />
     <Compile Include="Assets/Scripts/UIDemoTester.cs" />
+    <Compile Include="Assets/Scripts/ImpactRingDiagnosticSetup.cs" />
     <Compile Include="Assets/Scripts/TennisEnhancementManager.cs" />
     <Compile Include="Assets/Scripts/DirectionSliderFix.cs" />
     <Compile Include="Assets/Scripts/BounceAnalyzer.cs" />
@@ -139,6 +145,7 @@
     <Compile Include="Assets/Scripts/RingTargetConflictChecker.cs" />
     <Compile Include="Assets/Scripts/CameraController.cs" />
     <Compile Include="Assets/Scripts/SliderTester.cs" />
+    <Compile Include="Assets/Scripts/LaunchCallTracker.cs" />
     <Compile Include="Assets/Scripts/QuickLauncherFix.cs" />
   </ItemGroup>
   <ItemGroup>

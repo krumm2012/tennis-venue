@@ -216,9 +216,9 @@ public class SimpleTennisUI : MonoBehaviour
     {
         if (ballLauncher != null)
         {
-            // 模拟空格键按下
-            ballLauncher.SendMessage("Update", SendMessageOptions.DontRequireReceiver);
-            Debug.Log("🚀 Ball launched via UI button");
+            // 直接调用LaunchBall方法，而不是模拟Update
+            ballLauncher.LaunchBall(Vector3.zero);
+            Debug.Log("🚀 Ball launched via SimpleTennisUI button");
         }
         else
         {

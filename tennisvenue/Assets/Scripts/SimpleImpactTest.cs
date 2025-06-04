@@ -18,11 +18,12 @@ public class SimpleImpactTest : MonoBehaviour
     {
         Debug.Log("=== Simple Impact Test - ImpactMarker_Ring 诊断 ===");
         Debug.Log("快捷键说明:");
-        Debug.Log("  空格键: 创建测试网球（场地中央掉落）");
+        Debug.Log("  F7键: 创建测试网球（场地中央掉落）");        
         Debug.Log("  Enter键: 检查系统状态和标记统计");
         Debug.Log("  Delete键: 清除所有测试网球");
         Debug.Log("  F9: 运行完整诊断");
         Debug.Log("  F10: 强制创建可见圆环");
+        Debug.Log("💡 注意: 空格键已保留给BallLauncher正常发射使用");
 
         // 查找冲击标记系统
         impactMarker = FindObjectOfType<BounceImpactMarker>();
@@ -42,7 +43,7 @@ public class SimpleImpactTest : MonoBehaviour
     void Update()
     {
         // 快捷键控制
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.F7)) // 改为F7键，避免与BallLauncher冲突
         {
             CreateTestTennisBall();
         }
@@ -414,7 +415,7 @@ public class SimpleImpactTest : MonoBehaviour
         }
         if (ballCount == 0)
         {
-            Debug.LogWarning("   ⚠️ 无网球，按空格键创建测试网球");
+            Debug.LogWarning("   ⚠️ 无网球，按F7键创建测试网球");
         }
     }
 

@@ -324,24 +324,69 @@ public class TrajectoryDragController : MonoBehaviour
     /// </summary>
     void ApplyLaunchParameters(float angle, float speed, float direction)
     {
-        // 更新滑块值
+        if (ballLauncher == null) return;
+
+        // 更新滑块值并触发事件
         if (ballLauncher.angleSlider != null)
         {
             ballLauncher.angleSlider.value = angle;
+            // 手动触发滑块的OnValueChanged事件
+            ballLauncher.angleSlider.onValueChanged.Invoke(angle);
         }
 
         if (ballLauncher.speedSlider != null)
         {
             ballLauncher.speedSlider.value = speed;
+            // 手动触发滑块的OnValueChanged事件
+            ballLauncher.speedSlider.onValueChanged.Invoke(speed);
         }
 
         if (ballLauncher.directionSlider != null)
         {
             ballLauncher.directionSlider.value = direction;
+            // 手动触发滑块的OnValueChanged事件
+            ballLauncher.directionSlider.onValueChanged.Invoke(direction);
         }
 
-        // 直接调用BallLauncher的设置方法
+        // 直接调用BallLauncher的设置方法以确保参数生效
         ballLauncher.SetDirection(direction);
+
+        // 强制更新轨迹线预测
+        ForceUpdateTrajectory();
+
+        if (showDebugInfo)
+        {
+            Debug.Log($"🎯 Applied parameters - Angle: {angle:F1}°, Speed: {speed:F1}, Direction: {direction:F1}°");
+        }
+    }
+
+    /// <summary>
+    /// 强制更新轨迹线
+    /// </summary>
+    void ForceUpdateTrajectory()
+    {
+        if (ballLauncher == null) return;
+
+        // 调用BallLauncher的轨迹更新方法
+        // 使用反射调用私有方法（如果需要）
+        var updateMethod = ballLauncher.GetType().GetMethod("UpdateTrajectoryLine",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (updateMethod != null)
+        {
+            updateMethod.Invoke(ballLauncher, null);
+        }
+        else
+        {
+            // 尝试调用公共的Update方法作为备选
+            var publicUpdateMethod = ballLauncher.GetType().GetMethod("Update",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+            if (publicUpdateMethod != null)
+            {
+                publicUpdateMethod.Invoke(ballLauncher, null);
+            }
+        }
     }
 
     /// <summary>
@@ -351,6 +396,9 @@ public class TrajectoryDragController : MonoBehaviour
     {
         isDragging = false;
 
+        // 保存当前拖动后的参数作为新的基准参数
+        SaveCurrentParameters();
+
         // 恢复轨迹线颜色
         if (trajectoryLine != null)
         {
@@ -358,7 +406,25 @@ public class TrajectoryDragController : MonoBehaviour
             trajectoryLine.endColor = normalColor;
         }
 
-        Debug.Log("✅ Trajectory dragging completed");
+        Debug.Log("✅ Trajectory dragging completed - Parameters saved");
+    }
+
+    /// <summary>
+    /// 保存当前参数
+    /// </summary>
+    void SaveCurrentParameters()
+    {
+        if (ballLauncher == null) return;
+
+        // 更新原始参数为当前值，这样下次拖动时使用新的基准
+        originalAngle = ballLauncher.angleSlider?.value ?? originalAngle;
+        originalSpeed = ballLauncher.speedSlider?.value ?? originalSpeed;
+        originalDirection = ballLauncher.directionSlider?.value ?? originalDirection;
+
+        if (showDebugInfo)
+        {
+            Debug.Log($"💾 Parameters saved - Angle: {originalAngle:F1}°, Speed: {originalSpeed:F1}, Direction: {originalDirection:F1}°");
+        }
     }
 
     /// <summary>
@@ -371,9 +437,17 @@ public class TrajectoryDragController : MonoBehaviour
         // 恢复原始参数
         ApplyLaunchParameters(originalAngle, originalSpeed, originalDirection);
 
-        EndDragging();
+        // 直接结束拖动，不调用SaveCurrentParameters
+        isDragging = false;
 
-        Debug.Log("❌ Trajectory dragging cancelled");
+        // 恢复轨迹线颜色
+        if (trajectoryLine != null)
+        {
+            trajectoryLine.startColor = normalColor;
+            trajectoryLine.endColor = normalColor;
+        }
+
+        Debug.Log("❌ Trajectory dragging cancelled - Parameters restored");
     }
 
     /// <summary>

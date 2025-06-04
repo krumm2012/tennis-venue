@@ -1056,7 +1056,7 @@ MonoBehaviour:
   m_FillRect: {fileID: 1363306823}
   m_HandleRect: {fileID: 817195727}
   m_Direction: 0
-  m_MinValue: 3
+  m_MinValue: 1
   m_MaxValue: 30
   m_WholeNumbers: 0
   m_Value: 11.95
@@ -2034,6 +2034,7 @@ MonoBehaviour:
   airResistanceSystem: {fileID: 0}
   trajectoryDragController: {fileID: 0}
   enableTrajectoryDrag: 1
+  enableDirectionLogging: 0
 --- !u!1 &766283467
 GameObject:
   m_ObjectHideFlags: 0
@@ -2929,6 +2930,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1135577733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135577735}
+  - component: {fileID: 1135577734}
+  m_Layer: 0
+  m_Name: ImpactRingDiagnostic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1135577734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135577733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dda88ffa92d94e4db2b1fece211adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableDetailedLogging: 1
+  testRingSize: 1
+  testRingHeight: 0.05
+--- !u!4 &1135577735
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135577733}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1139637123
 GameObject:
   m_ObjectHideFlags: 0
@@ -3030,6 +3078,58 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.8, y: 1.5, z: 0}
   m_LocalScale: {x: 0.1, y: 3, z: 11}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1165720548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1165720550}
+  - component: {fileID: 1165720549}
+  m_Layer: 0
+  m_Name: UIStatusMonitor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1165720549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165720548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3299214b698c468e8bbab5555275d21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableMonitoring: 1
+  showPerformanceInfo: 1
+  showSystemStatus: 1
+  updateInterval: 1
+  statusCanvas: {fileID: 0}
+  statusPanel: {fileID: 0}
+  statusText: {fileID: 0}
+  performanceText: {fileID: 0}
+--- !u!4 &1165720550
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165720548}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3828,10 +3928,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableImpactMarkers: 1
   markerLifetime: 15
-  baseRingSize: 0.5
-  velocityScale: 0.1
+  baseRingSize: 0.35
+  velocityScale: 0.02
   minRingSize: 0.3
-  maxRingSize: 2
+  maxRingSize: 0.5
   ringThickness: 0.05
   ringColor: {r: 1, g: 0, b: 0, a: 1}
   enableGlow: 1
@@ -3840,6 +3940,9 @@ MonoBehaviour:
   lowSpeedThreshold: 5
   mediumSpeedThreshold: 10
   highSpeedThreshold: 15
+  enableDetailedLogging: 0
+  enableConditionLogging: 0
+  logFrameInterval: 60
 --- !u!4 &1522027325
 Transform:
   m_ObjectHideFlags: 0
@@ -4341,13 +4444,68 @@ MonoBehaviour:
   m_FillRect: {fileID: 872778523}
   m_HandleRect: {fileID: 0}
   m_Direction: 0
-  m_MinValue: 5
+  m_MinValue: 1
   m_MaxValue: 60
   m_WholeNumbers: 0
   m_Value: 6
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1764446075
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1764446077}
+  - component: {fileID: 1764446076}
+  m_Layer: 0
+  m_Name: FlightTimeTracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1764446076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764446075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d83601971b3441a68464054731e54f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flightTimeText: {fileID: 0}
+  totalFlightText: {fileID: 0}
+  debugInfoText: {fileID: 0}
+  ballStatusText: {fileID: 0}
+  enableDebugMode: 1
+  showDetailedInfo: 1
+  logToConsole: 1
+  minTrackingSpeed: 0.3
+  maxTrackingTime: 15
+  minTrackingHeight: -2
+  isTrackingFlight: 0
+--- !u!4 &1764446077
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764446075}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1786095084
 GameObject:
   m_ObjectHideFlags: 0
@@ -4412,6 +4570,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ecfbf1363a44456cb2f372b5eb54d0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enablePeriodicLogging: 0
+  enableChangeLogging: 1
+  logInterval: 10
 --- !u!114 &1786095088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4866,6 +5027,68 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2082274392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2082274394}
+  - component: {fileID: 2082274393}
+  m_Layer: 0
+  m_Name: TrajectoryDragController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2082274393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082274392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 055c4ae63c5254b2d9596be1e81dc430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballLauncher: {fileID: 752791030}
+  mainCamera: {fileID: 963194227}
+  trajectoryLine: {fileID: 202716499}
+  detectionRadius: 1
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  enableDragControl: 1
+  showDebugInfo: 0
+  minAngle: 15
+  maxAngle: 75
+  minSpeed: 10
+  maxSpeed: 30
+  minDirection: -45
+  maxDirection: 45
+  dragIndicator: {fileID: 0}
+  highlightColor: {r: 1, g: 0.68069094, b: 0.015686274, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!4 &2082274394
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082274392}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2105438307
 GameObject:
   m_ObjectHideFlags: 0
@@ -5110,3 +5333,7 @@ SceneRoots:
   - {fileID: 782628377}
   - {fileID: 1082915167}
   - {fileID: 1664295233}
+  - {fileID: 1165720550}
+  - {fileID: 2082274394}
+  - {fileID: 1764446077}
+  - {fileID: 1135577735}

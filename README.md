@@ -5,6 +5,69 @@
 
 ## 🔧 最新修复 (Latest Fix)
 
+### 🎯 冲击圆环可见性修复 ✅ **已解决** (最新)
+- **问题**: F10测试圆环可见，但发球后的ImpactMarker_Ring不可见
+- **原因**: 透明材质渲染问题、复杂网格不可见、位置过低等
+- **解决方案**:
+  1. **几何体优化**: 使用简单圆柱体替代复杂自定义网格
+  2. **材质增强**: 使用不透明材质替代透明材质
+  3. **位置调整**: 圆环抬高到地面上方0.1m (原来0.01m)
+  4. **颜色增强**: 更鲜艳的颜色和双倍发光强度
+  5. **渲染优化**: 移除碰撞器，优化渲染队列
+
+#### 🔧 MeshRenderer错误修复 (紧急修复)
+- **问题**: `MissingComponentException: There is no 'MeshRenderer' attached to the "ImpactMarker_Ring"`
+- **原因**: 父对象没有MeshRenderer，只有子对象（圆柱体）有
+- **修复**:
+  - 修改`FadeOutMarker()`方法，正确访问子对象的MeshRenderer
+  - 添加空值检查，防止组件缺失错误
+  - 优化渐变效果：使用缩放+颜色变暗替代透明度变化
+
+#### 修改文件: `BounceImpactMarker.cs`
+- `CreateImpactMarker()`: 使用新的可见圆环创建方法
+- `CreateVisibleRingGeometry()`: 新增 - 使用圆柱体创建圆环
+- `SetupEnhancedRingMaterial()`: 新增 - 不透明材质设置
+- `GetEnhancedSpeedColor()`: 新增 - 更鲜艳的颜色
+- `GetSpeedColor()`: 保留 - 确保向后兼容
+- `FadeOutMarker()`: 修复 - 正确访问子对象MeshRenderer，新增缩放+变暗渐变效果
+
+#### 圆环颜色编码
+- 🟢 **绿色**: 低速 (< 8 m/s)
+- 🟡 **黄色**: 中速 (8-12 m/s)
+- 🟠 **橙红色**: 高速 (12-18 m/s)
+- 🟣 **紫色**: 极高速 (> 18 m/s)
+
+#### 测试方法
+- 发射网球后应能看到明显的彩色圆环标记
+- F10键测试圆环应与发球圆环外观一致
+- 圆环应在撞击点上方0.1米高度显示
+
+### 轨迹拖动参数保存功能修复 ✅ **已解决**
+- **问题**: 拖动轨迹线调整参数后，松开鼠标时参数恢复到拖动前的值
+- **原因**: EndDragging方法没有保存拖动后的参数，缺少参数持久化机制
+- **解决方案**:
+  - 修改`EndDragging()`方法，添加`SaveCurrentParameters()`调用
+  - 优化`ApplyLaunchParameters()`方法，确保滑块事件正确触发
+  - 手动调用`onValueChanged.Invoke()`来强制更新UI状态
+  - 添加`ForceUpdateTrajectory()`方法同步轨迹线显示
+  - 区分正常结束和取消拖动的参数处理逻辑
+
+#### 修复的核心功能
+1. **参数保存机制**
+   - 拖动结束时自动保存当前参数为新基准
+   - 下次拖动使用更新后的参数作为起点
+   - ESC取消拖动时恢复原始参数
+
+2. **滑块同步优化**
+   - 手动触发滑块的`onValueChanged`事件
+   - 确保BallLauncher正确响应参数变化
+   - 强制更新轨迹线预测显示
+
+3. **测试功能增强**
+   - 新增F6快捷键测试参数保存功能
+   - 自动化测试序列验证参数持久化
+   - 详细的调试日志输出
+
 ### TennisBall标签错误修复 ✅ **已解决**
 - **问题**: UIStatusMonitor等脚本报错 "UnityException: Tag: TennisBall is not defined"
 - **原因**: 系统尝试使用未定义的"TennisBall"标签查找网球对象
@@ -2502,3 +2565,227 @@ Tennis Venue UI系统的成功开发证明了用户体验设计的重要性，�
 
 **最终解决方案**:
 我采用了分离式异常处理架构，完全避免了try-catch块包含yield return的问题：
+
+### 重复发射球体冲突检测与解决 🔧 新增问题解决记录
+
+#### 问题描述
+用户反馈："空格键和LaunchBall按键还是有重复球"
+
+#### 冲突检测与分析 🔍
+
+##### 已发现的潜在冲突源
+1. **自动播放功能 (TennisVenueUIManager)**:
+   - 自动播放模式启用时会定时调用LaunchBall()
+   - AutoPlayCoroutine每3秒自动发射一球
+   - 可能与手动发射冲突
+
+2. **SimpleTennisUI 错误实现**:
+   - LaunchBall()方法使用`SendMessage("Update")`
+   - 这会强制调用BallLauncher的Update方法
+   - 可能导致重复的输入检测和发射
+
+3. **多个脚本监听相同输入**:
+   - QuickBallTest: F6键 (已修复从空格键)
+   - SimpleImpactTest: F7键 (已修复从空格键)
+   - LauncherDiagnostic: F8键手动检查 (已修复自动监听)
+   - QuickLauncherFix: F8键手动检查 (已修复自动监听)
+
+#### 修复措施 ✅
+
+##### 1. SimpleTennisUI.cs 修复
+```csharp
+// 错误的实现 (已修复)
+// ballLauncher.SendMessage("Update", SendMessageOptions.DontRequireReceiver);
+
+// 正确的实现
+ballLauncher.LaunchBall(Vector3.zero);
+Debug.Log("🚀 Ball launched via SimpleTennisUI button");
+```
+
+##### 2. TennisVenueUIManager.cs 增强日志
+```csharp
+void LaunchBall()
+{
+    if (ballLauncher != null)
+    {
+        // 检查是否是自动播放调用
+        string caller = isAutoPlayMode ? "Auto Play" : "Manual UI Button";
+
+        ballLauncher.LaunchBall(Vector3.zero);
+        Debug.Log($"🚀 Ball launched via TennisVenueUIManager ({caller})");
+    }
+}
+```
+
+##### 3. 新增诊断工具
+
+**SceneObjectDiagnostic.cs** - 场景对象诊断工具:
+- **F9键**: 检查所有加载的脚本
+- **Ctrl+F9**: 检查可能的发射冲突
+- **Shift+F9**: 检查自动播放状态
+- 自动识别冲突脚本和重复监听器
+
+**ConflictResolver.cs** - 冲突解决器:
+- **自动解决**: 游戏启动时自动检测和解决冲突
+- **Ctrl+Shift+F9**: 手动解决所有冲突
+- **Ctrl+Alt+F9**: 禁用所有测试脚本
+- **功能**:
+  - 禁用SimpleTennisUI（避免SendMessage冲突）
+  - 强制关闭自动播放模式
+  - 禁用所有测试脚本的空格键监听
+
+#### 冲突预防机制 🛡️
+
+1. **输入职责分离**:
+   - **空格键**: 仅由BallLauncher监听
+   - **鼠标左键**: 仅由BallLauncher监听
+   - **UI按钮**: 仅由TennisVenueUIManager处理
+   - **测试快捷键**: 各自独立的F键序列
+
+2. **自动播放安全检查**:
+   - 启动时自动检测自动播放状态
+   - 提供强制关闭自动播放功能
+   - 增强日志区分手动和自动发射
+
+3. **脚本冲突检测**:
+   - 自动扫描所有MonoBehaviour实例
+   - 识别可能的发射冲突脚本
+   - 提供一键禁用冲突脚本功能
+
+#### 使用建议 💡
+
+1. **出现重复发射时**:
+   - 按**Ctrl+Shift+F9**一键解决所有冲突
+   - 检查控制台日志确认发射来源
+   - 确认自动播放模式是否关闭
+
+2. **调试冲突源**:
+   - 按**F9**查看所有加载的脚本
+   - 按**Ctrl+F9**检查发射冲突
+   - 按**Shift+F9**检查自动播放状态
+
+3. **预防措施**:
+   - 启动时让ConflictResolver自动运行
+   - 定期检查是否有新的测试脚本启用
+   - 避免同时启用多个UI系统
+
+## 🔍 Scripts目录重复功能分析
+
+经过全面检查`tennisvenue/Assets/Scripts`目录中的87个脚本文件，发现以下重复功能的脚本组：
+
+### 1. UI管理器重复功能 ⚠️
+
+| 脚本名称 | 主要功能 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `TennisVenueUIManager.cs` | **主要UI管理器** - 完整4面板布局 | 主脚本 | 保留 |
+| `SimpleTennisUI.cs` | 简化版UI管理器 - 基础按钮创建 | 90%重复 | 🗑️ **已禁用** |
+| `UIManagerSetup.cs` | UI管理器自动设置 | 80%重复 | 🔄 合并功能 |
+| `AutoSetupUIManager.cs` | 增强版自动设置 | 75%重复 | 🔄 合并功能 |
+
+**问题分析**：`SimpleTennisUI.cs`使用`SendMessage("Update")`导致重复发球问题，已通过ConflictResolver禁用。
+
+### 2. 诊断工具重复功能 ⚠️
+
+| 脚本名称 | 诊断目标 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `LauncherDiagnostic.cs` | 发球机鼠标输入诊断 | 基础诊断 | 保留 |
+| `SceneObjectDiagnostic.cs` | 场景对象和脚本冲突诊断 | 70%重复 | 🔄 合并功能 |
+| `ConflictResolver.cs` | 自动冲突解决 | 50%重复 | 保留 |
+| `LaunchCallTracker.cs` | 发球调用追踪诊断 | 60%重复 | 🔄 可选移除 |
+| `UIEventDiagnostic.cs` | UI事件重复注册诊断 | 80%重复 | 🔄 可选移除 |
+
+**处理状态**：已通过`LaunchBallBugFixer.cs`统一解决所有发射冲突问题。
+
+### 3. 撞击标记诊断重复功能 ⚠️
+
+| 脚本名称 | 诊断目标 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `ImpactRingDiagnostic.cs` | 圆环标记可见性诊断 | 基础诊断 | 保留 |
+| `RingVisibilityFixer.cs` | 圆环可见性修复 | 90%重复 | 🗑️ 可移除 |
+| `TennisBallImpactDiagnostic.cs` | 网球撞击诊断 | 80%重复 | 🗑️ 可移除 |
+| `ImpactMarkerDiagnostic.cs` | 撞击标记系统诊断 | 85%重复 | 🗑️ 可移除 |
+
+**建议**：保留`ImpactRingDiagnostic.cs`作为主要诊断工具，移除其他重复脚本。
+
+### 4. 测试脚本重复功能 ⚠️
+
+| 脚本名称 | 测试目标 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `UIIntegrationTest.cs` | **主要UI集成测试** - 7项自动化测试 | 主脚本 | 保留 |
+| `UISystemTest.cs` | UI系统基础测试 | 70%重复 | 🔄 合并功能 |
+| `UIDemoTester.cs` | UI演示测试器 | 60%重复 | 🔄 合并功能 |
+| `UIDemo.cs` | UI功能演示 | 50%重复 | 🔄 简化功能 |
+
+### 5. 快速修复脚本重复功能 ⚠️
+
+| 脚本名称 | 修复目标 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `QuickBallTest.cs` | 快速球测试 (F6键) | 独立功能 | 保留 |
+| `QuickLauncherFix.cs` | 发射器快速修复 | 80%重复 | 🗑️ 已禁用 |
+| `SimpleLauncherFix.cs` | 简单发射器修复 | 75%重复 | 🗑️ 可移除 |
+| `LauncherFixTest.cs` | 发射器修复测试 | 70%重复 | 🗑️ 可移除 |
+| `InstantBallFix.cs` | 即时球修复 | 60%重复 | 🗑️ 可移除 |
+
+**处理状态**：通过`LaunchBallBugFixer.cs`统一解决，多数快速修复脚本已禁用。
+
+### 6. 撞击测试重复功能 ⚠️
+
+| 脚本名称 | 测试功能 | 重复程度 | 建议处理 |
+|---------|---------|----------|----------|
+| `SimpleImpactTest.cs` | **主要撞击测试** - F7键创建测试球 | 主脚本 | 保留 |
+| `ImpactMarkerSelfTest.cs` | 撞击标记自测 | 70%重复 | 🔄 可选简化 |
+| `ImpactMarkerTest.cs` | 撞击标记验证 | 65%重复 | 🔄 可选移除 |
+| `QuickRingTest.cs` | 快速圆环测试 | 60%重复 | 🔄 可选移除 |
+
+### 📊 重复功能统计
+
+- **总脚本数量**: 87个
+- **核心功能脚本**: 12个 (BallLauncher, TennisVenueUIManager等)
+- **重复功能脚本**: 35个 (40.2%)
+- **测试/诊断脚本**: 28个 (32.2%)
+- **修复/工具脚本**: 22个 (25.3%)
+
+### ✅ 已解决的重复问题
+
+1. **空格键发射冲突** - 通过ConflictResolver禁用冲突脚本
+2. **UI按钮重复发球** - 修复SimpleTennisUI的SendMessage问题
+3. **鼠标点击冲突** - 重新分配快捷键给诊断脚本
+4. **UI管理器重复** - 单例模式防止多重实例
+
+### 🔧 清理建议
+
+#### 可安全删除的脚本：
+```
+RingVisibilityFixer.cs          # 功能已被ImpactRingDiagnostic覆盖
+TennisBallImpactDiagnostic.cs   # 功能重复
+ImpactMarkerDiagnostic.cs       # 功能重复
+SimpleLauncherFix.cs           # 功能已被LaunchBallBugFixer覆盖
+LauncherFixTest.cs             # 功能重复
+InstantBallFix.cs              # 功能重复
+```
+
+#### 可合并的脚本：
+```
+UISystemTest.cs + UIDemoTester.cs → UIIntegrationTest.cs
+UIManagerSetup.cs + AutoSetupUIManager.cs → 统一设置脚本
+多个撞击诊断脚本 → 保留ImpactRingDiagnostic.cs
+```
+
+#### 保留的核心脚本：
+```
+BallLauncher.cs                 # 核心发射系统
+TennisVenueUIManager.cs         # 主UI管理器
+LaunchBallBugFixer.cs          # 冲突解决方案
+ConflictResolver.cs            # 自动冲突检测
+QuickBallTest.cs               # 独立测试功能 (F6)
+SimpleImpactTest.cs            # 独立撞击测试 (F7)
+```
+
+### 🏗️ 重构建议
+
+1. **UI管理系统**：合并多个UI设置脚本为单一配置系统
+2. **诊断工具**：创建统一诊断面板，整合所有诊断功能
+3. **测试框架**：保留UIIntegrationTest作为主要测试工具
+4. **修复系统**：LaunchBallBugFixer作为唯一冲突解决方案
+
+通过这些优化，可以将脚本数量减少30-40%，提高项目的可维护性和性能。

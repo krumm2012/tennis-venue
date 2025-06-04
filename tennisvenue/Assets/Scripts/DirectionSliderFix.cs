@@ -28,13 +28,13 @@ public class DirectionSliderFix : MonoBehaviour
         Debug.Log($"找到DirectionSlider，当前范围: {directionSlider.minValue} 到 {directionSlider.maxValue}，值: {directionSlider.value}");
 
         // 修复Slider参数（从Speed范围改为Direction范围）
-        directionSlider.minValue = -45f;  // 左转45度
-        directionSlider.maxValue = 45f;   // 右转45度
+        directionSlider.minValue = -15f;  // 左转15度
+        directionSlider.maxValue = 15f;   // 右转15度
         directionSlider.value = 0f;       // 默认正前方
         directionSlider.wholeNumbers = false;
         directionSlider.interactable = true;
 
-        Debug.Log("DirectionSlider参数已修复: 范围 -45° 到 +45°");
+        Debug.Log("DirectionSlider参数已修复: 范围 -15° 到 +15°");
 
         // 修复Fill颜色（区别于SpeedSlider）
         FixSliderColors(directionSlider);

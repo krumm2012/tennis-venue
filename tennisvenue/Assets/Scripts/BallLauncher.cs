@@ -32,6 +32,11 @@ public class BallLauncher : MonoBehaviour
     public TrajectoryDragController trajectoryDragController;
     public bool enableTrajectoryDrag = true;
 
+    [Header("调试设置")]
+    public bool enableDirectionLogging = false;  // 关闭方向变化日志
+
+    private float lastLoggedDirection = float.MinValue;
+
     private float angle = 45f;
     private float speed = 20f;
     private float direction = 0f; // 0度为正前方
@@ -45,8 +50,8 @@ public class BallLauncher : MonoBehaviour
 
         if (angleSlider != null)
         {
-            angleSlider.minValue = 15f;
-            angleSlider.maxValue = 75f;
+            angleSlider.minValue = 5f;
+            angleSlider.maxValue = 60f;
             angleSlider.value = angle;
             angleSlider.onValueChanged.AddListener(OnAngleChanged);
         }
@@ -55,7 +60,7 @@ public class BallLauncher : MonoBehaviour
         UpdateLauncherRotation();
         if (speedSlider != null)
         {
-            speedSlider.minValue = 10f;
+            speedSlider.minValue = 1f;
             speedSlider.maxValue = 30f;
             speedSlider.value = speed;
             speedSlider.onValueChanged.AddListener(OnSpeedChanged);
@@ -76,8 +81,8 @@ public class BallLauncher : MonoBehaviour
         if (directionSlider != null)
         {
             Debug.Log("DirectionSlider found and initialized");
-            directionSlider.minValue = -45f; // 左转45度
-            directionSlider.maxValue = 45f;  // 右转45度
+            directionSlider.minValue = -15f; // 左转15度
+            directionSlider.maxValue = 15f;  // 右转15度
             directionSlider.value = direction;
             directionSlider.wholeNumbers = false;
             directionSlider.interactable = true;
@@ -158,6 +163,9 @@ public class BallLauncher : MonoBehaviour
     /// </summary>
     public void LaunchBall(Vector3 targetPos)
     {
+        // 记录发射调用（用于诊断重复发射问题）
+        LaunchCallTracker.RecordLaunchCall("BallLauncher.LaunchBall", targetPos);
+        
         if (ballPrefab == null || launchPoint == null) return;
 
         GameObject ball = Instantiate(ballPrefab, launchPoint.position, Quaternion.identity);
@@ -388,7 +396,12 @@ public class BallLauncher : MonoBehaviour
 
     void OnDirectionChanged(float value)
     {
-        Debug.Log($"Direction changed to: {value}");
+        // 只在启用日志且值变化足够大时才输出
+        if (enableDirectionLogging && Mathf.Abs(value - lastLoggedDirection) > 1f)
+        {
+            Debug.Log($"🎯 Direction changed: {lastLoggedDirection:F1}° → {value:F1}°");
+            lastLoggedDirection = value;
+        }
         SetDirection(value);
     }
 
@@ -397,7 +410,9 @@ public class BallLauncher : MonoBehaviour
     /// </summary>
     public void SetDirection(float newDirection)
     {
+        float oldDirection = direction;
         direction = Mathf.Clamp(newDirection, -45f, 45f);
+
         // 更新发球机的方向角
         UpdateLauncherRotation();
         UpdateUI();
@@ -408,7 +423,11 @@ public class BallLauncher : MonoBehaviour
             directionSlider.value = direction;
         }
 
-        Debug.Log($"Direction set to: {direction:F1}°");
+        // 只在启用日志且值变化足够大时才输出
+        if (enableDirectionLogging && Mathf.Abs(direction - oldDirection) > 1f)
+        {
+            Debug.Log($"🔧 Direction set: {oldDirection:F1}° → {direction:F1}°");
+        }
     }
 
     /// <summary>
@@ -459,24 +478,31 @@ public class BallLauncher : MonoBehaviour
 
         // 获取所有Image组件
         Image[] images = directionSlider.GetComponentsInChildren<Image>();
+        int fixedCount = 0;
 
         foreach (Image img in images)
         {
             if (img.name.Contains("Background"))
             {
                 img.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-                Debug.Log("设置DirectionSlider Background颜色");
+                fixedCount++;
             }
             else if (img.name.Contains("Fill"))
             {
                 img.color = new Color(0.2f, 0.8f, 0.2f, 0.8f); // 绿色，区别于其他Slider
-                Debug.Log("设置DirectionSlider Fill颜色为绿色");
+                fixedCount++;
             }
             else if (img.name.Contains("Handle"))
             {
                 img.color = new Color(0.8f, 0.8f, 0.8f, 0.9f);
-                Debug.Log("设置DirectionSlider Handle颜色");
+                fixedCount++;
             }
+        }
+
+        // 只输出一次简化的日志
+        if (fixedCount > 0 && enableDirectionLogging)
+        {
+            Debug.Log($"🎨 DirectionSlider颜色已修复 (修复{fixedCount}个组件)");
         }
     }
 }

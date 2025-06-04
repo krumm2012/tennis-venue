@@ -10,6 +10,9 @@ using System.Collections;
 /// </summary>
 public class TennisVenueUIManager : MonoBehaviour
 {
+    // 单例模式防止重复实例
+    private static TennisVenueUIManager instance;
+    
     [Header("UI面板引用")]
     public Canvas mainCanvas;
     public GameObject controlPanelPrefab;
@@ -76,8 +79,22 @@ public class TennisVenueUIManager : MonoBehaviour
     private Coroutine autoPlayCoroutine;
     private float autoPlayInterval = 3f;
 
+    void Awake()
+    {
+        // 单例模式检查
+        if (instance != null && instance != this)
+        {
+            Debug.LogWarning("⚠️ 检测到重复TennisVenueUIManager实例！销毁新实例以防止冲突");
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+    }
+    
     void Start()
     {
+        if (instance != this) return; // 如果不是正确的实例，直接返回
+        
         InitializeUI();
         FindSystemComponents();
         SetupButtonEvents();
@@ -285,7 +302,17 @@ public class TennisVenueUIManager : MonoBehaviour
         float startY = 120;
         float spacing = 35;
 
-        launchButton = CreateButton(parent, "🚀 Launch Ball", new Vector2(0, startY), LaunchBall);
+        // 保证LaunchBall按钮只创建一次
+        if (launchButton == null)
+        {
+            launchButton = CreateButton(parent, "🚀 Launch Ball", new Vector2(0, startY), LaunchBall);
+            Debug.Log("✅ LaunchBall按钮已创建");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ LaunchBall按钮已存在，跳过重复创建");
+        }
+        
         resetButton = CreateButton(parent, "🔄 Reset Game", new Vector2(0, startY - spacing), ResetGame);
         clearBallsButton = CreateButton(parent, "🧹 Clear Balls", new Vector2(0, startY - spacing * 2), ClearAllBalls);
         autoPlayButton = CreateButton(parent, "⏯️ Auto Play", new Vector2(0, startY - spacing * 3), ToggleAutoPlay);
@@ -613,8 +640,14 @@ public class TennisVenueUIManager : MonoBehaviour
     {
         if (ballLauncher != null)
         {
+            // 检查是否是自动播放调用
+            string caller = isAutoPlayMode ? "Auto Play" : "Manual UI Button";
+            
+            // 记录UI发射调用
+            LaunchCallTracker.RecordLaunchCall($"TennisVenueUIManager.LaunchBall ({caller})", Vector3.zero);
+            
             ballLauncher.LaunchBall(Vector3.zero);
-            Debug.Log("🚀 Ball launched via UI button");
+            Debug.Log($"🚀 Ball launched via TennisVenueUIManager ({caller})");
         }
     }
 

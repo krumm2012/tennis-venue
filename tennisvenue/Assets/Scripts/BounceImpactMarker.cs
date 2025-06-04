@@ -14,16 +14,16 @@ public class BounceImpactMarker : MonoBehaviour
     public float markerLifetime = 15f;
 
     [Tooltip("基础圆环大小")]
-    public float baseRingSize = 0.5f;
+    public float baseRingSize = 0.335f;
 
     [Tooltip("速度影响系数")]
-    public float velocityScale = 0.1f;
+    public float velocityScale = 0.02f;
 
     [Tooltip("最小圆环大小")]
     public float minRingSize = 0.3f;
 
     [Tooltip("最大圆环大小")]
-    public float maxRingSize = 2.0f;
+    public float maxRingSize = 0.5f;
 
     [Tooltip("圆环厚度")]
     public float ringThickness = 0.05f;
@@ -51,8 +51,17 @@ public class BounceImpactMarker : MonoBehaviour
     [Tooltip("高速阈值 (m/s)")]
     public float highSpeedThreshold = 15f;
 
+    [Header("调试设置")]
+    [Tooltip("启用详细调试日志")]
+    public bool enableDetailedLogging = false;
+    [Tooltip("启用条件检查日志")]
+    public bool enableConditionLogging = false;
+    [Tooltip("日志输出间隔（帧数）")]
+    public int logFrameInterval = 60; // 每60帧（约1秒）输出一次
+
     // 追踪已标记的球体，避免重复标记
     private Dictionary<GameObject, bool> markedBalls = new Dictionary<GameObject, bool>();
+    private Dictionary<GameObject, int> ballLastLogFrame = new Dictionary<GameObject, int>(); // 记录每个球最后日志输出的帧数
 
     // 存储所有创建的标记，便于管理
     private List<GameObject> activeMarkers = new List<GameObject>();
@@ -135,29 +144,56 @@ public class BounceImpactMarker : MonoBehaviour
         // 检查异常位置 - 网球掉落到地面以下太深
         if (position.y < -5f)
         {
-            Debug.LogWarning($"⚠️ 异常网球位置检测: {ball.name} 高度{position.y:F2}m - 移除追踪");
+            if (enableDetailedLogging)
+            {
+                Debug.LogWarning($"⚠️ 异常网球位置检测: {ball.name} 高度{position.y:F2}m - 移除追踪");
+            }
             markedBalls.Remove(ball);
+            ballLastLogFrame.Remove(ball);
             return;
         }
 
         // 检查异常速度 - 速度过快可能是物理系统错误
         if (speed > 50f)
         {
-            Debug.LogWarning($"⚠️ 异常网球速度检测: {ball.name} 速度{speed:F2}m/s - 移除追踪");
+            if (enableDetailedLogging)
+            {
+                Debug.LogWarning($"⚠️ 异常网球速度检测: {ball.name} 速度{speed:F2}m/s - 移除追踪");
+            }
             markedBalls.Remove(ball);
+            ballLastLogFrame.Remove(ball);
             return;
         }
 
         // 检查网球是否在合理的场地范围内
         if (Mathf.Abs(position.x) > 10f || Mathf.Abs(position.z) > 10f)
         {
-            Debug.LogWarning($"⚠️ 网球超出场地范围: {ball.name} 位置{position} - 移除追踪");
+            if (enableDetailedLogging)
+            {
+                Debug.LogWarning($"⚠️ 网球超出场地范围: {ball.name} 位置{position} - 移除追踪");
+            }
             markedBalls.Remove(ball);
+            ballLastLogFrame.Remove(ball);
             return;
         }
 
-        // 添加详细调试信息（降低频率避免日志过多）
-        if (Time.frameCount % 30 == 0) // 每半秒输出一次状态
+        // 智能日志控制 - 避免重复输出
+        bool shouldLogForThisBall = false;
+        int currentFrame = Time.frameCount;
+
+        if (!ballLastLogFrame.ContainsKey(ball))
+        {
+            ballLastLogFrame[ball] = currentFrame;
+            shouldLogForThisBall = true;
+        }
+        else if (currentFrame - ballLastLogFrame[ball] >= logFrameInterval)
+        {
+            ballLastLogFrame[ball] = currentFrame;
+            shouldLogForThisBall = true;
+        }
+
+        // 详细调试信息（降低频率避免日志过多）
+        if (enableDetailedLogging && shouldLogForThisBall)
         {
             Debug.Log($"🔍 Checking ball {ball.name}: Height={position.y:F3}m, Speed={speed:F2}m/s, VelY={velocity.y:F2}");
         }
@@ -173,8 +209,8 @@ public class BounceImpactMarker : MonoBehaviour
 
         bool isImpacting = heightCondition && velocityCondition && speedCondition;
 
-        // 输出条件检查结果（只在接近触发时输出）
-        if (heightCondition || velocityCondition || speedCondition)
+        // 只在启用条件日志且需要输出时才显示条件检查结果
+        if (enableConditionLogging && shouldLogForThisBall && (heightCondition || velocityCondition || speedCondition))
         {
             Debug.Log($"🎾 Ball {ball.name} conditions: Height({heightCondition}) Velocity({velocityCondition}) Speed({speedCondition}) = Impact({isImpacting})");
         }
@@ -187,29 +223,37 @@ public class BounceImpactMarker : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(position, Vector3.down, out hit, 1.0f)) // 增加射线距离
             {
-                Debug.Log($"🎯 Raycast hit: {hit.collider.name} at {hit.point}");
+                if (enableDetailedLogging)
+                {
+                    Debug.Log($"🎯 Raycast hit: {hit.collider.name} at {hit.point}");
+                }
 
                 if (hit.collider.name.Contains("Floor") || hit.collider.name.Contains("Ground"))
                 {
                     // 创建冲击标记
                     CreateImpactMarker(hit.point, speed, velocity);
                     markedBalls[ball] = true; // 标记为已处理
+                    ballLastLogFrame.Remove(ball); // 清理日志记录
 
                     Debug.Log($"🎯 Impact detected - Speed: {speed:F2}m/s at {hit.point}");
                 }
-                else
+                else if (enableDetailedLogging)
                 {
                     Debug.Log($"⚠️ Raycast hit non-floor object: {hit.collider.name}");
                 }
             }
             else
             {
-                Debug.Log($"❌ Raycast missed - no ground detected below {ball.name}");
+                if (enableDetailedLogging)
+                {
+                    Debug.Log($"❌ Raycast missed - no ground detected below {ball.name}");
+                }
 
                 // 如果射线检测失败，但条件满足，直接在球的位置创建标记
                 Vector3 groundPoint = new Vector3(position.x, 0.01f, position.z);
                 CreateImpactMarker(groundPoint, speed, velocity);
                 markedBalls[ball] = true;
+                ballLastLogFrame.Remove(ball); // 清理日志记录
 
                 Debug.Log($"🎯 Fallback impact marker created at {groundPoint}");
             }
@@ -228,15 +272,15 @@ public class BounceImpactMarker : MonoBehaviour
         // 计算圆环大小（基于速度）
         float ringSize = CalculateRingSize(impactSpeed);
 
-        // 创建圆环对象
-        GameObject ringMarker = CreateRingGeometry(ringSize);
+        // 创建圆环对象 - 使用简单圆柱体确保可见性
+        GameObject ringMarker = CreateVisibleRingGeometry(ringSize);
         ringMarker.name = "ImpactMarker_Ring";
 
-        // 设置位置（稍微抬高避免Z-fighting）
-        ringMarker.transform.position = impactPoint + Vector3.up * 0.01f;
+        // 设置位置（明显抬高确保可见）
+        ringMarker.transform.position = impactPoint + Vector3.up * 0.1f;
 
-        // 设置材质和颜色
-        SetupRingMaterial(ringMarker, impactSpeed);
+        // 设置材质和颜色 - 使用不透明材质
+        SetupEnhancedRingMaterial(ringMarker, impactSpeed);
 
         // 添加到活动标记列表
         activeMarkers.Add(ringMarker);
@@ -256,132 +300,107 @@ public class BounceImpactMarker : MonoBehaviour
     }
 
     /// <summary>
-    /// 根据冲击速度计算圆环大小
+    /// 创建可见圆环几何体 - 使用简单圆柱体
     /// </summary>
-    float CalculateRingSize(float speed)
-    {
-        // 基础大小 + 速度影响
-        float size = baseRingSize + (speed * velocityScale);
-
-        // 限制在最小和最大值之间
-        size = Mathf.Clamp(size, minRingSize, maxRingSize);
-
-        return size;
-    }
-
-    /// <summary>
-    /// 创建圆环几何体
-    /// </summary>
-    GameObject CreateRingGeometry(float outerRadius)
+    GameObject CreateVisibleRingGeometry(float outerRadius)
     {
         GameObject ring = new GameObject("ImpactRing");
 
-        // 创建圆环网格
-        MeshFilter meshFilter = ring.AddComponent<MeshFilter>();
-        MeshRenderer meshRenderer = ring.AddComponent<MeshRenderer>();
+        // 外圆（圆柱体）
+        GameObject outerCylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        outerCylinder.transform.SetParent(ring.transform);
+        outerCylinder.transform.localPosition = Vector3.zero;
+        outerCylinder.transform.localScale = new Vector3(outerRadius * 2, 0.02f, outerRadius * 2);
 
-        // 生成圆环网格
-        Mesh ringMesh = GenerateRingMesh(outerRadius, outerRadius - ringThickness, 32);
-        meshFilter.mesh = ringMesh;
+        // 内圆（圆柱体）- 用作减去区域
+        GameObject innerCylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        innerCylinder.transform.SetParent(ring.transform);
+        innerCylinder.transform.localPosition = Vector3.up * 0.001f; // 稍微高一点
+        innerCylinder.transform.localScale = new Vector3((outerRadius - ringThickness) * 2, 0.03f, (outerRadius - ringThickness) * 2);
+
+        // 为内圆设置透明材质来"挖洞"
+        MeshRenderer innerRenderer = innerCylinder.GetComponent<MeshRenderer>();
+        Material holeMaterial = new Material(Shader.Find("Standard"));
+        holeMaterial.color = new Color(1, 1, 1, 0); // 完全透明
+        holeMaterial.SetFloat("_Mode", 3); // Transparent
+        holeMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        holeMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        holeMaterial.SetInt("_ZWrite", 0);
+        holeMaterial.EnableKeyword("_ALPHABLEND_ON");
+        holeMaterial.renderQueue = 2999; // 比外圆稍早渲染
+        innerRenderer.material = holeMaterial;
+
+        // 移除碰撞器（不需要物理碰撞）
+        if (outerCylinder.GetComponent<Collider>())
+            DestroyImmediate(outerCylinder.GetComponent<Collider>());
+        if (innerCylinder.GetComponent<Collider>())
+            DestroyImmediate(innerCylinder.GetComponent<Collider>());
 
         return ring;
     }
 
     /// <summary>
-    /// 生成圆环网格
+    /// 设置增强圆环材质 - 确保可见性
     /// </summary>
-    Mesh GenerateRingMesh(float outerRadius, float innerRadius, int segments)
+    void SetupEnhancedRingMaterial(GameObject ring, float impactSpeed)
     {
-        Mesh mesh = new Mesh();
+        // 获取外圆的渲染器
+        Transform outerCylinder = ring.transform.GetChild(0);
+        MeshRenderer renderer = outerCylinder.GetComponent<MeshRenderer>();
 
-        // 顶点数组
-        Vector3[] vertices = new Vector3[segments * 2];
-        Vector2[] uvs = new Vector2[segments * 2];
-        int[] triangles = new int[segments * 6];
-
-        float angleStep = 2f * Mathf.PI / segments;
-
-        // 生成顶点
-        for (int i = 0; i < segments; i++)
-        {
-            float angle = i * angleStep;
-            float cos = Mathf.Cos(angle);
-            float sin = Mathf.Sin(angle);
-
-            // 外圆顶点
-            vertices[i * 2] = new Vector3(cos * outerRadius, 0, sin * outerRadius);
-            uvs[i * 2] = new Vector2(0, (float)i / segments);
-
-            // 内圆顶点
-            vertices[i * 2 + 1] = new Vector3(cos * innerRadius, 0, sin * innerRadius);
-            uvs[i * 2 + 1] = new Vector2(1, (float)i / segments);
-        }
-
-        // 生成三角形
-        for (int i = 0; i < segments; i++)
-        {
-            int current = i * 2;
-            int next = ((i + 1) % segments) * 2;
-
-            // 第一个三角形
-            triangles[i * 6] = current;
-            triangles[i * 6 + 1] = next;
-            triangles[i * 6 + 2] = current + 1;
-
-            // 第二个三角形
-            triangles[i * 6 + 3] = current + 1;
-            triangles[i * 6 + 4] = next;
-            triangles[i * 6 + 5] = next + 1;
-        }
-
-        mesh.vertices = vertices;
-        mesh.uv = uvs;
-        mesh.triangles = triangles;
-        mesh.RecalculateNormals();
-
-        return mesh;
-    }
-
-    /// <summary>
-    /// 设置圆环材质
-    /// </summary>
-    void SetupRingMaterial(GameObject ring, float impactSpeed)
-    {
-        MeshRenderer renderer = ring.GetComponent<MeshRenderer>();
-
-        // 创建材质
+        // 创建不透明材质
         Material ringMaterial = new Material(Shader.Find("Standard"));
 
-        // 根据速度设置颜色
-        Color speedColor = GetSpeedColor(impactSpeed);
+        // 根据速度设置颜色 - 更鲜艳
+        Color speedColor = GetEnhancedSpeedColor(impactSpeed);
         ringMaterial.color = speedColor;
 
-        // 设置材质属性
-        ringMaterial.SetFloat("_Metallic", 0.0f);
-        ringMaterial.SetFloat("_Smoothness", 0.8f);
+        // 设置材质属性 - 不透明且明亮
+        ringMaterial.SetFloat("_Metallic", 0.2f);
+        ringMaterial.SetFloat("_Smoothness", 0.9f);
+        ringMaterial.SetFloat("_Mode", 0); // Opaque mode
 
-        // 添加发光效果
+        // 添加强发光效果
         if (enableGlow)
         {
             ringMaterial.EnableKeyword("_EMISSION");
-            ringMaterial.SetColor("_EmissionColor", speedColor * glowIntensity);
+            ringMaterial.SetColor("_EmissionColor", speedColor * (glowIntensity * 2)); // 双倍发光强度
         }
 
-        // 设置透明度
-        ringMaterial.SetFloat("_Mode", 3); // Transparent mode
-        ringMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        ringMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        ringMaterial.SetInt("_ZWrite", 0);
-        ringMaterial.DisableKeyword("_ALPHATEST_ON");
-        ringMaterial.EnableKeyword("_ALPHABLEND_ON");
-        ringMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        ringMaterial.renderQueue = 3000;
-
         renderer.material = ringMaterial;
+
+        Debug.Log($"圆环材质设置完成 - 颜色: {speedColor}, 速度: {impactSpeed:F2}m/s");
     }
 
     /// <summary>
-    /// 根据速度获取颜色
+    /// 获取增强速度颜色 - 更明显的颜色
+    /// </summary>
+    Color GetEnhancedSpeedColor(float speed)
+    {
+        Color baseColor;
+        if (speed < lowSpeedThreshold)
+        {
+            baseColor = new Color(0, 1, 0, 1); // 鲜绿色
+        }
+        else if (speed < mediumSpeedThreshold)
+        {
+            baseColor = new Color(1, 1, 0, 1); // 鲜黄色
+        }
+        else if (speed < highSpeedThreshold)
+        {
+            baseColor = new Color(1, 0.2f, 0, 1); // 鲜橙红色
+        }
+        else
+        {
+            baseColor = new Color(1, 0, 1, 1); // 鲜紫色
+        }
+
+        // 增加亮度
+        return baseColor * 1.2f;
+    }
+
+    /// <summary>
+    /// 根据速度获取颜色 - 保持向后兼容
     /// </summary>
     Color GetSpeedColor(float speed)
     {
@@ -404,13 +423,40 @@ public class BounceImpactMarker : MonoBehaviour
     }
 
     /// <summary>
+    /// 根据冲击速度计算圆环大小
+    /// </summary>
+    float CalculateRingSize(float speed)
+    {
+        // 基础大小 + 速度影响
+        float size = baseRingSize + (speed * velocityScale);
+
+        // 限制在最小和最大值之间
+        size = Mathf.Clamp(size, minRingSize, maxRingSize);
+
+        return size;
+    }
+
+    /// <summary>
     /// 渐变消失效果
     /// </summary>
     System.Collections.IEnumerator FadeOutMarker(GameObject marker)
     {
-        MeshRenderer renderer = marker.GetComponent<MeshRenderer>();
+        // 获取外圆（第一个子对象）的MeshRenderer
+        Transform outerCylinder = marker.transform.GetChild(0);
+        MeshRenderer renderer = outerCylinder.GetComponent<MeshRenderer>();
+
+        if (renderer == null)
+        {
+            Debug.LogWarning($"⚠️ No MeshRenderer found on {marker.name} outer cylinder, skipping fade effect");
+            yield return new WaitForSeconds(markerLifetime);
+            activeMarkers.Remove(marker);
+            Destroy(marker);
+            yield break;
+        }
+
         Material material = renderer.material;
         Color originalColor = material.color;
+        Vector3 originalScale = marker.transform.localScale;
 
         float fadeTime = markerLifetime * 0.3f; // 最后30%时间用于渐变
         float waitTime = markerLifetime - fadeTime;
@@ -418,13 +464,20 @@ public class BounceImpactMarker : MonoBehaviour
         // 等待大部分时间
         yield return new WaitForSeconds(waitTime);
 
-        // 开始渐变
+        // 开始渐变 - 使用缩放+颜色变暗的组合效果
         float elapsedTime = 0f;
         while (elapsedTime < fadeTime)
         {
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeTime);
-            Color newColor = originalColor;
-            newColor.a = alpha;
+            float progress = elapsedTime / fadeTime;
+
+            // 缩放效果：从100%缩放到0%
+            float scaleMultiplier = Mathf.Lerp(1f, 0f, progress);
+            marker.transform.localScale = originalScale * scaleMultiplier;
+
+            // 颜色变暗效果：保持颜色但降低亮度
+            float brightnessMultiplier = Mathf.Lerp(1f, 0.1f, progress);
+            Color newColor = originalColor * brightnessMultiplier;
+            newColor.a = 1f; // 保持完全不透明
             material.color = newColor;
 
             elapsedTime += Time.deltaTime;
@@ -447,7 +500,7 @@ public class BounceImpactMarker : MonoBehaviour
         Debug.Log($"  📍 Position: ({point.x:F2}, {point.z:F2})");
         Debug.Log($"  ⚡ Speed: {speed:F2}m/s ({speedCategory})");
         Debug.Log($"  ⭕ Ring Size: {ringSize:F2}m");
-        Debug.Log($"  🎨 Color: {GetSpeedColor(speed)}");
+        Debug.Log($"  🎨 Color: {GetEnhancedSpeedColor(speed)}");
         Debug.Log($"  ⏱️ Lifetime: {markerLifetime}s");
     }
 
@@ -485,8 +538,9 @@ public class BounceImpactMarker : MonoBehaviour
         }
         activeMarkers.Clear();
         markedBalls.Clear();
+        ballLastLogFrame.Clear(); // 清理日志记录
 
-        Debug.Log("All impact markers cleared");
+        Debug.Log("All impact markers and logs cleared");
     }
 
     /// <summary>
@@ -528,7 +582,7 @@ public class BounceImpactMarker : MonoBehaviour
         Material mat = new Material(Shader.Find("Standard"));
 
         // 根据速度设置颜色
-        Color speedColor = GetSpeedColor(speed);
+        Color speedColor = GetEnhancedSpeedColor(speed);
         mat.color = speedColor;
         mat.EnableKeyword("_EMISSION");
         mat.SetColor("_EmissionColor", speedColor * 3f); // 更强的发光
@@ -566,6 +620,22 @@ public class BounceImpactMarker : MonoBehaviour
         foreach (var ball in ballsToRemove)
         {
             markedBalls.Remove(ball);
+            ballLastLogFrame.Remove(ball); // 同时清理日志记录
+        }
+
+        // 额外清理ballLastLogFrame中可能的孤立记录
+        List<GameObject> logBallsToRemove = new List<GameObject>();
+        foreach (var ball in ballLastLogFrame.Keys)
+        {
+            if (ball == null)
+            {
+                logBallsToRemove.Add(ball);
+            }
+        }
+
+        foreach (var ball in logBallsToRemove)
+        {
+            ballLastLogFrame.Remove(ball);
         }
     }
 
@@ -584,6 +654,8 @@ public class BounceImpactMarker : MonoBehaviour
     {
         return $"Impact Markers: {(enableImpactMarkers ? "ON" : "OFF")}, " +
                $"Active: {GetActiveMarkerCount()}, " +
-               $"Tracked Balls: {markedBalls.Count}";
+               $"Tracked Balls: {markedBalls.Count}, " +
+               $"DetailLog: {(enableDetailedLogging ? "ON" : "OFF")}, " +
+               $"ConditionLog: {(enableConditionLogging ? "ON" : "OFF")}";
     }
 }

@@ -32,6 +32,8 @@ public class QuickLauncherFix : MonoBehaviour
         Debug.Log("  F2: 测试鼠标左键发球");
         Debug.Log("  F3: 强制启用圆环标识");
         Debug.Log("  F4: 创建测试球验证圆环");
+        Debug.Log("  F8: 检查鼠标输入状态");
+        Debug.Log("💡 注意: 空格键和鼠标左键已保留给BallLauncher正常发射");
     }
 
     void Update()
@@ -53,8 +55,8 @@ public class QuickLauncherFix : MonoBehaviour
             CreateTestBallForRing();
         }
 
-        // 实时监控鼠标输入
-        if (enableDebugMode && Input.GetMouseButtonDown(0))
+        // 手动检查鼠标输入（改为F8键触发，避免与BallLauncher冲突）
+        if (enableDebugMode && Input.GetKeyDown(KeyCode.F8))
         {
             CheckMouseInput();
         }

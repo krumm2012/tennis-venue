@@ -11,14 +11,15 @@ public class QuickBallTest : MonoBehaviour
         CheckBallLauncher();
 
         Debug.Log("快捷键:");
-        Debug.Log("  空格键: 测试发球");
+        Debug.Log("  F6键: 测试发球 (独立测试)");
         Debug.Log("  F1键: 检查发球机状态");
         Debug.Log("  F2键: 强制修复ballPrefab");
+        Debug.Log("💡 注意: 空格键已保留给BallLauncher正常发射使用");
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.F6)) // 改为F6键，避免与BallLauncher冲突
         {
             TestLaunch();
         }

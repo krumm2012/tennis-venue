@@ -49,6 +49,7 @@ public class TrajectoryDragTest : MonoBehaviour
         Debug.Log("  F3: 运行自动测试");
         Debug.Log("  F4: 重置发球机参数");
         Debug.Log("  F5: 显示使用说明");
+        Debug.Log("  F6: 测试参数保存功能");
     }
 
     void Update()
@@ -75,6 +76,10 @@ public class TrajectoryDragTest : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F5))
         {
             ShowUsageInstructions();
+        }
+        else if (Input.GetKeyDown(KeyCode.F6))
+        {
+            TestParameterSaving();
         }
     }
 
@@ -294,6 +299,105 @@ public class TrajectoryDragTest : MonoBehaviour
         Debug.Log("  • 拖动检测半径默认为0.5米");
         Debug.Log("  • 目标位置受发球机物理限制约束");
         Debug.Log("  • 计算基于简化的抛物线模型");
+    }
+
+    /// <summary>
+    /// 测试参数保存功能
+    /// </summary>
+    void TestParameterSaving()
+    {
+        if (ballLauncher == null)
+        {
+            Debug.LogError("❌ BallLauncher未找到，无法测试参数保存");
+            return;
+        }
+
+        Debug.Log("🧪 开始测试参数保存功能...");
+
+        // 记录原始参数
+        float originalAngle = ballLauncher.angleSlider?.value ?? 45f;
+        float originalSpeed = ballLauncher.speedSlider?.value ?? 20f;
+        float originalDirection = ballLauncher.directionSlider?.value ?? 0f;
+
+        Debug.Log($"📊 原始参数 - 角度: {originalAngle:F1}°, 速度: {originalSpeed:F1}, 方向: {originalDirection:F1}°");
+
+        // 模拟参数变化
+        StartCoroutine(ParameterSavingTestSequence(originalAngle, originalSpeed, originalDirection));
+    }
+
+    /// <summary>
+    /// 参数保存测试序列
+    /// </summary>
+    System.Collections.IEnumerator ParameterSavingTestSequence(float origAngle, float origSpeed, float origDir)
+    {
+        // 步骤1: 修改参数
+        Debug.Log("🔄 步骤1: 修改发球机参数");
+
+        if (ballLauncher.angleSlider != null)
+        {
+            ballLauncher.angleSlider.value = 30f;
+            ballLauncher.angleSlider.onValueChanged.Invoke(30f);
+        }
+
+        if (ballLauncher.speedSlider != null)
+        {
+            ballLauncher.speedSlider.value = 25f;
+            ballLauncher.speedSlider.onValueChanged.Invoke(25f);
+        }
+
+        if (ballLauncher.directionSlider != null)
+        {
+            ballLauncher.directionSlider.value = 15f;
+            ballLauncher.directionSlider.onValueChanged.Invoke(15f);
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        // 步骤2: 检查参数是否已更新
+        float newAngle = ballLauncher.angleSlider?.value ?? 0f;
+        float newSpeed = ballLauncher.speedSlider?.value ?? 0f;
+        float newDirection = ballLauncher.directionSlider?.value ?? 0f;
+
+        Debug.Log($"📊 新参数 - 角度: {newAngle:F1}°, 速度: {newSpeed:F1}, 方向: {newDirection:F1}°");
+
+        // 验证参数是否正确保存
+        bool angleCorrect = Mathf.Approximately(newAngle, 30f);
+        bool speedCorrect = Mathf.Approximately(newSpeed, 25f);
+        bool directionCorrect = Mathf.Approximately(newDirection, 15f);
+
+        if (angleCorrect && speedCorrect && directionCorrect)
+        {
+            Debug.Log("✅ 参数保存测试通过！所有参数都正确保存");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ 参数保存测试部分失败 - 角度: {angleCorrect}, 速度: {speedCorrect}, 方向: {directionCorrect}");
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        // 步骤3: 恢复原始参数
+        Debug.Log("🔄 步骤3: 恢复原始参数");
+
+        if (ballLauncher.angleSlider != null)
+        {
+            ballLauncher.angleSlider.value = origAngle;
+            ballLauncher.angleSlider.onValueChanged.Invoke(origAngle);
+        }
+
+        if (ballLauncher.speedSlider != null)
+        {
+            ballLauncher.speedSlider.value = origSpeed;
+            ballLauncher.speedSlider.onValueChanged.Invoke(origSpeed);
+        }
+
+        if (ballLauncher.directionSlider != null)
+        {
+            ballLauncher.directionSlider.value = origDir;
+            ballLauncher.directionSlider.onValueChanged.Invoke(origDir);
+        }
+
+        Debug.Log("✅ 参数保存功能测试完成");
     }
 
     void OnGUI()

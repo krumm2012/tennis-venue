@@ -40,6 +40,8 @@ public class LauncherDiagnostic : MonoBehaviour
         Debug.Log("  F2: 修复球体命名问题");
         Debug.Log("  F3: 测试发球机发射");
         Debug.Log("  F4: 检查圆环标识系统");
+        Debug.Log("  F8: 检查当前鼠标状态");
+        Debug.Log("💡 注意: 空格键和鼠标左键已保留给BallLauncher正常发射");
     }
 
     void Update()
@@ -70,35 +72,43 @@ public class LauncherDiagnostic : MonoBehaviour
     }
 
     /// <summary>
-    /// 实时监控鼠标输入
+    /// 手动检查鼠标状态（改为F8键触发，避免与BallLauncher冲突）
     /// </summary>
     void MonitorMouseInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        // 移除自动鼠标监听，改为按键触发检查
+        if (Input.GetKeyDown(KeyCode.F8))
         {
-            Debug.Log("🖱️ 检测到鼠标左键点击");
+            Debug.Log("🔍 F8键触发鼠标状态检查");
+            CheckCurrentMouseState();
+        }
+    }
+    
+    /// <summary>
+    /// 检查当前鼠标状态
+    /// </summary>
+    void CheckCurrentMouseState()
+    {
+        // 检查是否点击在UI上
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            Debug.LogWarning("⚠️ 当前鼠标位置在UI元素上");
 
-            // 检查是否点击在UI上
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            // 获取当前鼠标下的UI元素
+            var pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = Input.mousePosition;
+
+            var results = new System.Collections.Generic.List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, results);
+
+            foreach (var result in results)
             {
-                Debug.LogWarning("⚠️ 鼠标点击在UI元素上，可能阻挡了发球机输入");
-
-                // 获取当前鼠标下的UI元素
-                var pointerEventData = new PointerEventData(EventSystem.current);
-                pointerEventData.position = Input.mousePosition;
-
-                var results = new System.Collections.Generic.List<RaycastResult>();
-                EventSystem.current.RaycastAll(pointerEventData, results);
-
-                foreach (var result in results)
-                {
-                    Debug.Log($"   UI元素: {result.gameObject.name}");
-                }
+                Debug.Log($"   UI元素: {result.gameObject.name}");
             }
-            else
-            {
-                Debug.Log("✅ 鼠标点击在游戏区域，应该能触发发球");
-            }
+        }
+        else
+        {
+            Debug.Log("✅ 当前鼠标位置在游戏区域");
         }
     }
 
