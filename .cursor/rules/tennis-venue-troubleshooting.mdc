@@ -1,0 +1,189 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Tennis Venue Troubleshooting Guide
+
+## Quick Fix Commands
+
+### Immediate Problem Resolution
+- **Ctrl+Shift+F9**: One-click conflict resolution via [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs)
+- **F10**: Auto-setup UI manager via [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs)
+- **F9**: Comprehensive system diagnostics via [tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs](mdc:tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs)
+- **F11**: Check UI system status
+
+## Common Issues Catalog
+
+### 🚀 Ball Launch Issues
+
+#### Problem: Multiple Balls Launching (Double/Triple Launch)
+**Symptoms**: Space key or mouse click launches 2-3 balls simultaneously
+**Root Cause**: Multiple scripts listening to the same input events
+**Solution**:
+1. Press **Ctrl+Shift+F9** for automatic conflict resolution
+2. Check [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) console output
+3. Disable redundant scripts: SimpleTennisUI, QuickLauncherFix, etc.
+4. Reference [README.md](mdc:README.md) "球发射重复问题修复" section
+
+#### Problem: No Ball Launching at All
+**Symptoms**: Space key or mouse clicks don't respond
+**Solution**:
+1. Check if [tennisvenue/Assets/Scripts/BallLauncher.cs](mdc:tennisvenue/Assets/Scripts/BallLauncher.cs) is attached to a GameObject
+2. Verify ball prefab is assigned in BallLauncher component
+3. Check Console for "BallLauncher not found" errors
+4. Use **F6** for quick ball test
+
+#### Problem: SendMessage Errors
+**Symptoms**: "SendMessage Update has no receiver" console errors
+**Root Cause**: [tennisvenue/Assets/Scripts/SimpleTennisUI.cs](mdc:tennisvenue/Assets/Scripts/SimpleTennisUI.cs) using deprecated SendMessage calls
+**Solution**:
+1. [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) automatically disables SimpleTennisUI
+2. Use [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs) instead
+
+### 🎯 Impact Marker Issues
+
+#### Problem: Impact Rings Not Visible
+**Symptoms**: Ball hits ground but no colored rings appear
+**Root Cause**: Transparent materials, wrong mesh, or positioning issues
+**Solution**:
+1. Check [tennisvenue/Assets/Scripts/BounceImpactMarker.cs](mdc:tennisvenue/Assets/Scripts/BounceImpactMarker.cs) implementation
+2. Verify ring height is 0.1m above ground (not 0.01m)
+3. Ensure opaque materials with emission are used
+4. Use **F7** for impact test
+5. Reference [README.md](mdc:README.md) "冲击圆环可见性修复" section
+
+#### Problem: MeshRenderer Component Errors
+**Symptoms**: "There is no 'MeshRenderer' attached to the ImpactMarker_Ring" errors
+**Root Cause**: Code trying to access MeshRenderer on parent instead of child cylinder
+**Solution**:
+1. Updated [tennisvenue/Assets/Scripts/BounceImpactMarker.cs](mdc:tennisvenue/Assets/Scripts/BounceImpactMarker.cs) accesses child MeshRenderer
+2. Check FadeOutMarker() method implementation
+3. Null checks prevent component missing errors
+
+### 🏷️ Tag and Component Issues
+
+#### Problem: "Tag: TennisBall is not defined" Errors
+**Symptoms**: Scripts fail to find tennis balls using CompareTag
+**Root Cause**: TennisBall tag not created in project
+**Solution**:
+1. [tennisvenue/Assets/Scripts/UIStatusMonitor.cs](mdc:tennisvenue/Assets/Scripts/UIStatusMonitor.cs) uses safe ball identification
+2. Ball detection by name pattern + Rigidbody component instead of tags
+3. Auto-tag creation available in editor mode
+4. Reference [README.md](mdc:README.md) "TennisBall标签错误修复" section
+
+### 🎮 UI System Issues
+
+#### Problem: UI Manager Not Loading
+**Symptoms**: No UI panels visible, buttons don't appear
+**Solution**:
+1. Press **F10** for automatic UI setup via [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs)
+2. Check if TennisVenueUIManager GameObject exists in scene
+3. Verify Canvas components are properly configured
+4. Reference [README.md](mdc:README.md) "自动设置UI管理器" section
+
+#### Problem: Duplicate UI Elements
+**Symptoms**: Multiple UI panels, overlapping buttons
+**Solution**:
+1. Use **Shift+F10** to clear all UI components (editor mode only)
+2. [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs) prevents duplicate creation
+3. Only one UI manager should be active
+
+### 📐 Trajectory and Physics Issues
+
+#### Problem: Trajectory Drag Parameters Not Saving
+**Symptoms**: Dragging trajectory line doesn't persist parameter changes
+**Root Cause**: EndDragging method not saving parameters
+**Solution**:
+1. [tennisvenue/Assets/Scripts/TrajectoryPredictor.cs](mdc:tennisvenue/Assets/Scripts/TrajectoryPredictor.cs) updated with SaveCurrentParameters()
+2. Use **F6** to test parameter persistence
+3. ESC key cancels dragging and restores original parameters
+4. Reference [README.md](mdc:README.md) "轨迹拖动参数保存功能修复" section
+
+#### Problem: Ball Physics Don't Match Reference.md
+**Symptoms**: Ball bounces too high/low, wrong air resistance
+**Solution**:
+1. Verify ball prefab physics parameters match [reference.md](mdc:reference.md):
+   - Mass: 0.057 kg
+   - Bounciness: 0.75
+   - Drag: 0.1
+   - Dynamic/Static Friction: 0.5/0.6
+2. Check Physics Material assignment on ball and surfaces
+
+## Diagnostic Workflow
+
+### Step 1: Quick System Check
+1. Press **F11** to check UI system status
+2. Press **F9** for comprehensive scene diagnostics
+3. Check Unity Console for error messages
+
+### Step 2: Conflict Detection
+1. Press **Ctrl+F9** to check for launch conflicts
+2. Press **Shift+F9** to check auto-play status
+3. Review active MonoBehaviour scripts
+
+### Step 3: Automated Resolution
+1. Press **Ctrl+Shift+F9** for one-click conflict resolution
+2. Use [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) automated fixes:
+   - Disable SimpleTennisUI
+   - Force auto-play off
+   - Disable conflicting test scripts
+
+### Step 4: Manual Verification
+1. Test basic functionality: **Space** key for single ball launch
+2. Test UI functionality: **F10** for UI setup, verify all buttons work
+3. Test trajectory system: Mouse click and drag
+4. Test impact markers: **F7** for impact test
+
+## Script Redundancy Resolution
+
+### Identified Redundant Scripts (40% of 87 total)
+Reference [README.md](mdc:README.md) "Scripts目录重复功能分析" for complete analysis.
+
+#### Safe to Disable/Remove:
+- `SimpleTennisUI.cs` - Causes SendMessage conflicts
+- `RingVisibilityFixer.cs` - Functionality merged into BounceImpactMarker
+- `TennisBallImpactDiagnostic.cs` - Redundant diagnostics
+- `SimpleLauncherFix.cs` - Replaced by LaunchBallBugFixer
+- `InstantBallFix.cs` - Functionality redundant
+
+#### Core Scripts to Keep:
+- [tennisvenue/Assets/Scripts/BallLauncher.cs](mdc:tennisvenue/Assets/Scripts/BallLauncher.cs) - Primary launcher
+- [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs) - Main UI
+- [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) - Conflict management
+- [tennisvenue/Assets/Scripts/LaunchBallBugFixer.cs](mdc:tennisvenue/Assets/Scripts/LaunchBallBugFixer.cs) - Unified fixes
+
+## Emergency Recovery
+
+### Complete System Reset
+If all else fails, perform complete system reset:
+1. **Shift+F10**: Clear all UI components (editor mode)
+2. **Ctrl+Alt+F9**: Disable all test scripts
+3. **F10**: Rebuild UI system from scratch
+4. **Ctrl+Shift+F9**: Resolve any remaining conflicts
+
+### Restore Reference.md Compliance
+1. Verify all physics parameters match [reference.md](mdc:reference.md) specifications
+2. Check venue dimensions: 3.5m × 11m × 3m
+3. Validate trajectory calculations use reference.md formulas
+4. Ensure curtain rebound uses Vector3.Reflect method
+
+### Performance Cleanup
+1. Use [tennisvenue/Assets/Scripts/TennisBallCleaner.cs](mdc:tennisvenue/Assets/Scripts/TennisBallCleaner.cs) to remove excess balls
+2. Disable unused diagnostic scripts
+3. Clear console logs and Unity profiler data
+
+## Prevention Best Practices
+
+### Before Making Changes
+1. Check [README.md](mdc:README.md) for existing solutions
+2. Verify [reference.md](mdc:reference.md) compliance requirements
+3. Run **F9** diagnostics to check current system state
+4. Backup current working configuration
+
+### After Making Changes
+1. Test basic functionality (Space key launch)
+2. Run conflict detection (**Ctrl+F9**)
+3. Verify UI system (**F11**)
+4. Check Console for new errors
+5. Test with automated tools (**F6**, **F7**)

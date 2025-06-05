@@ -1,0 +1,108 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Tennis Venue Project Structure Guide
+
+## Project Overview
+This is a Unity 3D tennis practice venue simulation project based on detailed technical specifications in [reference.md](mdc:reference.md). The project implements a ball launcher system, trajectory prediction, camera controls, and curtain rebound simulation.
+
+## Key Documentation Files
+- **[README.md](mdc:README.md)**: Complete project documentation with 2950+ lines covering all features, troubleshooting, and usage instructions
+- **[reference.md](mdc:reference.md)**: Original technical specifications and implementation guide for the 3D tennis venue (3.5m × 11m × 3m)
+
+## Core Project Structure
+```
+tennis-venue/
+├── README.md                    # Main project documentation
+├── reference.md                 # Technical specifications
+└── tennisvenue/
+    └── Assets/
+        ├── Scenes/              # Unity scenes
+        ├── Scripts/             # C# scripts (87 files)
+        ├── Materials/           # Tennis court materials
+        ├── Prefabs/            # Tennis ball and venue prefabs
+        └── UI/                 # User interface assets
+```
+
+## Core Systems and Scripts
+
+### Ball Launcher System
+- **Primary**: [tennisvenue/Assets/Scripts/BallLauncher.cs](mdc:tennisvenue/Assets/Scripts/BallLauncher.cs)
+- Implements mouse-controlled parabolic trajectory ball launching
+- Based on physics calculations from [reference.md](mdc:reference.md)
+- Tennis ball physics: mass=0.057kg, bounciness=0.75, drag=0.1
+
+### UI Management System
+- **Primary**: [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs)
+- Provides complete 4-panel UI layout (control, camera, functions, debug)
+- Auto-setup available via [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs)
+
+### Curtain Rebound System
+- **Primary**: [tennisvenue/Assets/Scripts/CurtainBehavior.cs](mdc:tennisvenue/Assets/Scripts/CurtainBehavior.cs)
+- Implements force simulation for curtain ball rebounds
+- Uses Vector3.Reflect physics from [reference.md](mdc:reference.md) specifications
+
+### Trajectory System
+- **Primary**: [tennisvenue/Assets/Scripts/TrajectoryPredictor.cs](mdc:tennisvenue/Assets/Scripts/TrajectoryPredictor.cs)
+- Provides real-time trajectory prediction and interactive dragging
+- Enhanced beyond [reference.md](mdc:reference.md) specifications
+
+## Development Workflow
+
+### Reference.md Compliance
+All implementations must follow the 4-stage development process outlined in [reference.md](mdc:reference.md):
+1. **Stage 1**: Unity environment setup and venue modeling
+2. **Stage 2**: Ball launcher logic and parabolic calculations
+3. **Stage 3**: Curtain rebound force simulation
+4. **Stage 4**: UI and user experience
+
+### Physics Parameters (from reference.md)
+- Venue dimensions: 3.5m × 11m × 3m
+- Tennis ball mass: 0.057 kg
+- Bounciness: 0.75
+- Air resistance: 0.1
+- Dynamic friction: 0.5, Static friction: 0.6
+
+### Key Shortcuts and Testing
+- **Space**: Launch ball
+- **F6**: Quick ball test
+- **F7**: Impact test
+- **F10**: Auto-setup UI manager
+- **F11**: Check UI system status
+
+## Troubleshooting Common Issues
+
+### Ball Launch Conflicts
+If experiencing multiple ball launches:
+- Use [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs)
+- Press **Ctrl+Shift+F9** for one-click conflict resolution
+- Check [README.md](mdc:README.md) section "🔧 最新修复" for detailed solutions
+
+### UI System Issues
+- Use [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs) for automatic setup
+- Press **F10** for immediate UI manager setup
+- Reference [README.md](mdc:README.md) "快速开始" section
+
+### Impact Marker Visibility
+- Check [tennisvenue/Assets/Scripts/BounceImpactMarker.cs](mdc:tennisvenue/Assets/Scripts/BounceImpactMarker.cs)
+- Impact rings should appear 0.1m above ground with color coding
+- Reference [README.md](mdc:README.md) "冲击圆环可见性修复" section
+
+## Code Quality Guidelines
+
+### Script Organization
+- Keep core functionality scripts minimal and focused
+- Diagnostic scripts should be separate from core systems
+- Follow naming convention: `ComponentName.cs` for main scripts, `ComponentNameDiagnostic.cs` for diagnostics
+
+### Reference.md Consistency
+- All physics calculations must match [reference.md](mdc:reference.md) formulas
+- Venue dimensions must remain 3.5m × 11m × 3m
+- Ball physics parameters should not deviate from specifications without documentation
+
+### Performance Considerations
+- The project contains 87 scripts with ~40% redundancy (documented in [README.md](mdc:README.md))
+- Prefer core scripts over diagnostic/test scripts for production
+- Use conflict resolution tools to disable redundant systems

@@ -1,0 +1,139 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Tennis Venue Development Best Practices
+
+## Core Development Principles
+
+### 1. Reference.md as Technical Foundation
+- **All code changes** must align with [reference.md](mdc:reference.md) specifications
+- **Physics parameters** must match the documented values (mass=0.057kg, bounciness=0.75, etc.)
+- **Venue dimensions** are fixed at 3.5m × 11m × 3m and should not be modified
+- **Four-stage development process** should be followed for any major features
+
+### 2. Script Redundancy Management
+The project has 87 scripts with ~40% redundancy. Always check [README.md](mdc:README.md) "Scripts目录重复功能分析" before creating new scripts.
+
+#### Core Scripts (DO NOT DUPLICATE)
+- [tennisvenue/Assets/Scripts/BallLauncher.cs](mdc:tennisvenue/Assets/Scripts/BallLauncher.cs) - Primary ball launching system
+- [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs) - Main UI management
+- [tennisvenue/Assets/Scripts/CurtainBehavior.cs](mdc:tennisvenue/Assets/Scripts/CurtainBehavior.cs) - Curtain rebound physics
+- [tennisvenue/Assets/Scripts/TrajectoryPredictor.cs](mdc:tennisvenue/Assets/Scripts/TrajectoryPredictor.cs) - Trajectory calculations
+
+#### Conflict Resolution Scripts
+- [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) - Auto-detect and resolve conflicts
+- [tennisvenue/Assets/Scripts/LaunchBallBugFixer.cs](mdc:tennisvenue/Assets/Scripts/LaunchBallBugFixer.cs) - Unified launch conflict solution
+
+## Physics Implementation Standards
+
+### Ball Physics (Reference.md Compliance)
+```csharp
+// Required tennis ball physics parameters
+public class TennisBallPhysics
+{
+    public float mass = 0.057f;          // Standard tennis ball weight (kg)
+    public float bounciness = 0.75f;     // Elasticity coefficient
+    public float drag = 0.1f;            // Air resistance
+    public float dynamicFriction = 0.5f; // Surface friction
+    public float staticFriction = 0.6f;  // Static surface friction
+}
+```
+
+### Trajectory Calculations
+All trajectory calculations must use the formulas from [reference.md](mdc:reference.md):
+- `target.x - launchPoint.x = Vx * t`
+- `target.y - launchPoint.y = Vy * t - 0.5 * g * t^2`
+- `target.z - launchPoint.z = Vz * t`
+
+### Curtain Rebound Physics
+Use Vector3.Reflect as specified in [reference.md](mdc:reference.md):
+```csharp
+Vector3 reflectedVelocity = Vector3.Reflect(incidentVelocity, normal);
+reflectedVelocity *= reboundFactor;
+```
+
+## UI Development Guidelines
+
+### Primary UI System
+- Use [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs) as the main UI controller
+- Four-panel layout: Control (top-left), Camera (top-right), Functions (bottom-left), Debug (bottom-right)
+- Auto-setup via [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs)
+
+### UI Conflict Prevention
+- Never create duplicate UI managers
+- Use F10 for auto-setup instead of manual UI creation
+- Check existing UI systems before adding new controls
+
+## Debugging and Diagnostics
+
+### Primary Diagnostic Tools
+- **F9**: Scene object diagnostics via [tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs](mdc:tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs)
+- **Ctrl+Shift+F9**: Auto-resolve conflicts via [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs)
+- **F6**: Quick ball test via [tennisvenue/Assets/Scripts/QuickBallTest.cs](mdc:tennisvenue/Assets/Scripts/QuickBallTest.cs)
+- **F7**: Impact test via [tennisvenue/Assets/Scripts/SimpleImpactTest.cs](mdc:tennisvenue/Assets/Scripts/SimpleImpactTest.cs)
+
+### Logging Standards
+- Use descriptive log messages with emoji prefixes (🚀 for launches, 🎯 for targets, etc.)
+- Include caller identification in logs (Auto Play vs Manual UI Button)
+- Log all physics parameter changes for debugging
+
+## Common Issues and Solutions
+
+### Ball Launch Conflicts
+**Problem**: Multiple balls launching simultaneously
+**Solution**:
+1. Use [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs)
+2. Press Ctrl+Shift+F9 for automatic resolution
+3. Check [README.md](mdc:README.md) "球发射重复问题修复" section
+
+### Impact Marker Visibility
+**Problem**: Impact rings not visible after ball collision
+**Solution**:
+1. Check [tennisvenue/Assets/Scripts/BounceImpactMarker.cs](mdc:tennisvenue/Assets/Scripts/BounceImpactMarker.cs)
+2. Verify ring height is 0.1m above ground
+3. Ensure non-transparent materials are used
+
+### TennisBall Tag Errors
+**Problem**: "Tag: TennisBall is not defined" errors
+**Solution**:
+1. Use safe ball identification methods in [tennisvenue/Assets/Scripts/UIStatusMonitor.cs](mdc:tennisvenue/Assets/Scripts/UIStatusMonitor.cs)
+2. Identify balls by name pattern + physics components instead of tags
+
+## Performance Optimization
+
+### Script Management
+- Disable redundant diagnostic scripts in production
+- Use [tennisvenue/Assets/Scripts/ConflictResolver.cs](mdc:tennisvenue/Assets/Scripts/ConflictResolver.cs) to manage active scripts
+- Prioritize core functionality scripts over test/diagnostic scripts
+
+### Memory Management
+- Clean up instantiated balls using [tennisvenue/Assets/Scripts/TennisBallCleaner.cs](mdc:tennisvenue/Assets/Scripts/TennisBallCleaner.cs)
+- Limit simultaneous ball count for performance
+- Use object pooling for frequently instantiated objects
+
+## Testing Protocols
+
+### Functional Testing
+1. **Basic Launch Test**: Space key → single ball launch
+2. **UI Integration Test**: F10 → UI setup → all buttons functional
+3. **Physics Compliance**: Verify ball physics match [reference.md](mdc:reference.md) specifications
+4. **Trajectory Accuracy**: Mouse targeting → ball reaches intended point
+5. **Curtain Rebound**: Ball bounces correctly off curtain wall
+
+### Conflict Testing
+- Press F9 to check for script conflicts
+- Verify only one UI manager is active
+- Test all input methods (mouse, keyboard, UI buttons)
+- Confirm no duplicate event listeners
+
+### Integration Testing
+Use [tennisvenue/Assets/Scripts/UIIntegrationTest.cs](mdc:tennisvenue/Assets/Scripts/UIIntegrationTest.cs) for comprehensive automated testing:
+- Ball launcher functionality
+- UI responsiveness
+- Camera system
+- Trajectory prediction
+- Impact markers
+- Auto-play mode
+- Conflict detection

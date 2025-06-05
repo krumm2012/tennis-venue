@@ -1,7 +1,21 @@
 # Tennis Venue - 网球场仿真项目
 
 ## 项目概述
-这是一个Unity 3D网球场仿真项目，提供发球机系统、轨迹预测、摄像机控制等功能。
+这是一个Unity 3D网球练习馆仿真项目，基于reference.md中的详细技术规格实现。项目提供发球机系统、轨迹预测、摄像机控制、幕布回球仿真等完整功能。
+
+### 📐 项目规格（基于reference.md）
+- **场馆尺寸**: 宽3.5m × 长11m × 高3m
+- **核心功能**:
+  1. 🎯 鼠标定制抛物线的发球机发球
+  2. 🎾 幕布回球力度仿真
+  3. 📊 完整的UI管理系统
+  4. 🎮 多视角摄像机控制
+
+### 🛠️ 技术选型
+- **3D引擎**: Unity 2021.3+ LTS
+- **编程语言**: C#
+- **物理系统**: Unity Physics (Rigidbody + Collider)
+- **UI系统**: Unity uGUI Canvas
 
 ## 🔧 最新修复 (Latest Fix)
 
@@ -102,6 +116,62 @@
 - 🔍 **智能识别**: 通过名称+物理组件双重验证确保准确性
 - 🛡️ **错误防护**: 不再出现标签未定义错误
 - 📊 **准确计数**: 网球数量统计更加准确可靠
+
+## 📖 开发文档
+
+### Reference.md - 完整实现指南
+本项目基于`reference.md`文件中的详细技术规格开发。该文档包含：
+
+#### 🏗️ 架构设计
+- **第一阶段**: Unity环境搭建和场馆建模
+- **第二阶段**: 发球机逻辑和抛物线计算
+- **第三阶段**: 幕布回球力度仿真
+- **第四阶段**: UI和用户体验优化
+
+#### 🧮 核心算法
+1. **弹道计算公式**:
+   ```csharp
+   // 基础物理公式
+   // target.x - launchPoint.x = Vx * t
+   // target.y - launchPoint.y = Vy * t - 0.5 * g * t^2
+   // target.z - launchPoint.z = Vz * t
+   ```
+
+2. **轨迹速度计算**:
+   ```csharp
+   Vector3 CalculateTrajectoryVelocity(Vector3 origin, Vector3 target, float angleInDegrees)
+   ```
+
+3. **幕布反弹物理**:
+   ```csharp
+   Vector3 reflectedVelocity = Vector3.Reflect(incidentVelocity, normal);
+   reflectedVelocity *= reboundFactor;
+   ```
+
+#### 📝 网球物理参数（reference.md规格）
+- **质量**: 0.057 kg (标准网球重量)
+- **弹性系数**: 0.75 (Bounciness)
+- **空气阻力**: 0.1 (Drag)
+- **摩擦系数**: 动态0.5，静态0.6
+
+#### 🎾 网球预制体配置
+根据reference.md规格，网球预制体应包含：
+- Sphere Collider + Rigidbody
+- 物理材质 (Physic Material)
+- Continuous Dynamic 碰撞检测
+- 合适的缩放比例 (直径约0.065m)
+
+### 📋 实现状态对照
+| Reference.md功能 | 实现状态 | 对应脚本 |
+|-----------------|---------|---------|
+| 🎯 鼠标发球机 | ✅ 已实现 | BallLauncher.cs |
+| 🎾 幕布回球 | ✅ 已实现 | CurtainBehavior.cs |
+| 📐 场馆建模 | ✅ 已实现 | Unity场景配置 |
+| 🎮 轨迹预测 | ✅ 已增强 | TrajectoryPredictor.cs |
+| 📊 UI系统 | ✅ 已增强 | TennisVenueUIManager.cs |
+| 📷 多视角 | ✅ 已增强 | CameraController.cs |
+
+> 💡 **提示**: 项目不仅实现了reference.md中的所有核心功能，还添加了许多增强特性，如轨迹拖动调整、冲击标记、自动播放等。
 
 ## 快速开始 ✨ **新增功能**
 
@@ -2789,3 +2859,91 @@ SimpleImpactTest.cs            # 独立撞击测试 (F7)
 4. **修复系统**：LaunchBallBugFixer作为唯一冲突解决方案
 
 通过这些优化，可以将脚本数量减少30-40%，提高项目的可维护性和性能。
+
+## 📚 Reference.md 使用指南
+
+### 🎯 如何使用Reference.md
+
+`reference.md`文件是本项目的**完整技术实现指南**，包含了从零开始构建3D网球练习馆的详细步骤。
+
+#### 📖 适用场景
+1. **新手开发者**: 按照reference.md的步骤从零开始学习Unity 3D开发
+2. **功能扩展**: 基于reference.md的设计理念添加新功能
+3. **问题排查**: 当系统出现问题时，对照reference.md检查实现是否符合规范
+4. **代码重构**: 使用reference.md作为重构参考，确保不偏离原始设计
+
+#### 🏗️ 与现有项目的关系
+- **设计基础**: 当前项目完全基于reference.md的技术规格开发
+- **功能增强**: 在reference.md基础上添加了轨迹拖动、UI管理等增强功能
+- **向后兼容**: 所有增强功能都与reference.md的核心设计兼容
+
+#### 📝 关键实现对照
+
+| Reference.md章节 | 当前实现状态 | 核心文件 |
+|-----------------|------------|---------|
+| **第一阶段：环境搭建** | ✅ 完全实现 | Unity场景配置 |
+| **第二阶段：发球机逻辑** | ✅ 完全实现 + 增强 | `BallLauncher.cs` |
+| **第三阶段：幕布回球仿真** | ✅ 完全实现 | `CurtainBehavior.cs` |
+| **第四阶段：UI和用户体验** | ✅ 大幅增强 | `TennisVenueUIManager.cs` |
+
+#### 🧮 核心算法实现验证
+
+根据reference.md规格，您可以验证以下核心功能：
+
+1. **弹道计算**:
+   ```csharp
+   // reference.md中的CalculateTrajectoryVelocity函数
+   // 已在BallLauncher.cs中完整实现
+   ```
+
+2. **物理参数**:
+   ```csharp
+   // 网球物理参数是否符合reference.md规格
+   mass = 0.057f;        // ✅ 符合规格
+   bounciness = 0.75f;   // ✅ 符合规格
+   drag = 0.1f;          // ✅ 符合规格
+   ```
+
+3. **幕布反弹**:
+   ```csharp
+   // CurtainBehavior.cs中的反弹计算
+   // 完全基于reference.md的Vector3.Reflect公式
+   ```
+
+#### 🚀 基于Reference.md的扩展开发
+
+如果您想基于reference.md添加新功能：
+
+1. **阅读相关章节**: 首先理解reference.md中的设计理念
+2. **检查现有实现**: 查看对应功能在当前项目中的实现状态
+3. **保持一致性**: 确保新功能与reference.md的设计模式一致
+4. **测试兼容性**: 使用项目中的诊断工具测试新功能
+
+#### 💡 Reference.md最佳实践
+
+- **学习路径**: 按照reference.md的4个阶段顺序学习Unity开发
+- **故障排除**: 当功能异常时，对照reference.md检查实现细节
+- **性能优化**: 使用reference.md中的物理参数作为优化基准
+- **功能验证**: 确保所有实现都符合reference.md的技术规格
+
+### 🎓 学习建议
+
+1. **初学者**: 建议先完整阅读reference.md，理解整体架构
+2. **有经验开发者**: 重点关注reference.md中的物理计算和算法部分
+3. **维护人员**: 使用reference.md作为系统维护和故障排查的参考手册
+
+> 📌 **重要提示**: reference.md不仅是实现指南，更是本项目的技术规范文档。所有代码修改都应该与其保持一致。
+
+---
+
+## 📞 联系信息
+
+如果您在使用reference.md或实现相关功能时遇到问题，请：
+1. 首先查看本README的故障排查章节
+2. 对照reference.md检查实现细节
+3. 使用项目中的诊断工具进行问题定位
+4. 查看Unity Console日志获取详细错误信息
+
+**项目版本**: Unity 2021.3+ LTS
+**最后更新**: 2024年
+**技术基础**: reference.md v1.0 完整技术规格
