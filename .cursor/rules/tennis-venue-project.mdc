@@ -9,7 +9,7 @@ alwaysApply: false
 This is a Unity 3D tennis practice venue simulation project based on detailed technical specifications in [reference.md](mdc:reference.md). The project implements a ball launcher system, trajectory prediction, camera controls, and curtain rebound simulation.
 
 ## Key Documentation Files
-- **[README.md](mdc:README.md)**: Complete project documentation with 2950+ lines covering all features, troubleshooting, and usage instructions
+- **[README.md](mdc:README.md)**: Complete project documentation with 3000+ lines covering all features, troubleshooting, usage instructions, and core script analysis
 - **[reference.md](mdc:reference.md)**: Original technical specifications and implementation guide for the 3D tennis venue (3.5m × 11m × 3m)
 
 ## Core Project Structure

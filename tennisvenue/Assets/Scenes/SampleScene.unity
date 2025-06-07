@@ -2034,6 +2034,7 @@ MonoBehaviour:
   airResistanceSystem: {fileID: 0}
   trajectoryDragController: {fileID: 0}
   enableTrajectoryDrag: 1
+  positionFixer: {fileID: 0}
   enableDirectionLogging: 0
 --- !u!1 &766283467
 GameObject:
@@ -3850,6 +3851,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1485516808
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1485516810}
+  - component: {fileID: 1485516809}
+  m_Layer: 0
+  m_Name: ImpactMarkerPositionFixer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1485516809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485516808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 316a61733442d4fc5aeb88958eb5010b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballLauncher: {fileID: 752791030}
+  bounceImpactMarker: {fileID: 1522027324}
+  trajectoryLine: {fileID: 202716499}
+  enablePositionFix: 1
+  showDebugInfo: 1
+  positionTolerance: 0.1
+  showTrajectoryEndPoint: 1
+  trajectoryEndMarker: {fileID: 0}
+--- !u!4 &1485516810
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485516808}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1487772540
 GameObject:
   m_ObjectHideFlags: 0
@@ -3943,6 +3996,8 @@ MonoBehaviour:
   enableDetailedLogging: 0
   enableConditionLogging: 0
   logFrameInterval: 60
+  enablePositionFix: 1
+  positionFixer: {fileID: 0}
 --- !u!4 &1522027325
 Transform:
   m_ObjectHideFlags: 0
@@ -5337,3 +5392,4 @@ SceneRoots:
   - {fileID: 2082274394}
   - {fileID: 1764446077}
   - {fileID: 1135577735}
+  - {fileID: 1485516810}

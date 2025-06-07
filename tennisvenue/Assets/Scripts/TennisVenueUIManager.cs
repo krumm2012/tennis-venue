@@ -12,7 +12,7 @@ public class TennisVenueUIManager : MonoBehaviour
 {
     // 单例模式防止重复实例
     private static TennisVenueUIManager instance;
-    
+
     [Header("UI面板引用")]
     public Canvas mainCanvas;
     public GameObject controlPanelPrefab;
@@ -90,11 +90,11 @@ public class TennisVenueUIManager : MonoBehaviour
         }
         instance = this;
     }
-    
+
     void Start()
     {
         if (instance != this) return; // 如果不是正确的实例，直接返回
-        
+
         InitializeUI();
         FindSystemComponents();
         SetupButtonEvents();
@@ -312,7 +312,7 @@ public class TennisVenueUIManager : MonoBehaviour
         {
             Debug.LogWarning("⚠️ LaunchBall按钮已存在，跳过重复创建");
         }
-        
+
         resetButton = CreateButton(parent, "🔄 Reset Game", new Vector2(0, startY - spacing), ResetGame);
         clearBallsButton = CreateButton(parent, "🧹 Clear Balls", new Vector2(0, startY - spacing * 2), ClearAllBalls);
         autoPlayButton = CreateButton(parent, "⏯️ Auto Play", new Vector2(0, startY - spacing * 3), ToggleAutoPlay);
@@ -642,10 +642,10 @@ public class TennisVenueUIManager : MonoBehaviour
         {
             // 检查是否是自动播放调用
             string caller = isAutoPlayMode ? "Auto Play" : "Manual UI Button";
-            
+
             // 记录UI发射调用
             LaunchCallTracker.RecordLaunchCall($"TennisVenueUIManager.LaunchBall ({caller})", Vector3.zero);
-            
+
             ballLauncher.LaunchBall(Vector3.zero);
             Debug.Log($"🚀 Ball launched via TennisVenueUIManager ({caller})");
         }
@@ -675,23 +675,20 @@ public class TennisVenueUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 清除所有网球
+    /// 清除所有网球 - 修复版，避免误删重要组件
     /// </summary>
     void ClearAllBalls()
     {
-        // 使用安全的网球查找方法
+        // 使用更安全的网球识别方法
         List<GameObject> ballsToDestroy = new List<GameObject>();
         GameObject[] allObjects = FindObjectsOfType<GameObject>();
 
         foreach (GameObject obj in allObjects)
         {
-            if (obj.name.Contains("TennisBall") || obj.name.Contains("Tennis Ball") || obj.name.Contains("Ball"))
+            // 只清除明确的网球对象，使用更严格的条件
+            if (IsSafeTennisBall(obj))
             {
-                // 确保对象有物理组件，更可能是真实的网球
-                if (obj.GetComponent<Rigidbody>() != null || obj.GetComponent<Collider>() != null)
-                {
-                    ballsToDestroy.Add(obj);
-                }
+                ballsToDestroy.Add(obj);
             }
         }
 
@@ -699,10 +696,53 @@ public class TennisVenueUIManager : MonoBehaviour
         foreach (GameObject ball in ballsToDestroy)
         {
             if (ball != null)
+            {
+                Debug.Log($"🧹 清除网球: {ball.name}");
                 DestroyImmediate(ball);
+            }
         }
 
-        Debug.Log($"🧹 {ballsToDestroy.Count} tennis balls cleared via UI button");
+        Debug.Log($"🧹 {ballsToDestroy.Count} tennis balls cleared safely via UI button");
+    }
+
+    /// <summary>
+    /// 判断对象是否是安全的网球(可以被清除)
+    /// </summary>
+    bool IsSafeTennisBall(GameObject obj)
+    {
+        if (obj == null) return false;
+
+        string name = obj.name;
+
+        // 只匹配明确的网球命名模式，避免误删其他对象
+        bool isNameMatch = name.StartsWith("TennisBall") ||
+                          name.StartsWith("Tennis Ball") ||
+                          name.Contains("TennisBall_") ||
+                          name.Contains("QuickTest") ||
+                          name.Contains("SimpleTest");
+
+        if (!isNameMatch) return false;
+
+        // 确保有物理组件（真正的网球特征）
+        bool hasPhysics = obj.GetComponent<Rigidbody>() != null && obj.GetComponent<Collider>() != null;
+        if (!hasPhysics) return false;
+
+        // 排除包含重要系统组件的对象
+        bool hasCriticalComponents = obj.GetComponent<BallLauncher>() != null ||
+                                   obj.GetComponent<Camera>() != null ||
+                                   obj.GetComponent<Canvas>() != null ||
+                                   obj.GetComponent<TennisVenueUIManager>() != null ||
+                                   obj.GetComponent<CameraController>() != null ||
+                                   obj.GetComponent<FlightTimeTracker>() != null ||
+                                   obj.GetComponent<LandingPointTracker>() != null;
+
+        if (hasCriticalComponents)
+        {
+            Debug.LogWarning($"⚠️ 跳过删除包含重要组件的对象: {obj.name}");
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>

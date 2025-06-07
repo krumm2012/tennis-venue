@@ -90,6 +90,7 @@
     <Compile Include="Assets/Scripts/UISystemTest.cs" />
     <Compile Include="Assets/Scripts/LandingPointTestDemo.cs" />
     <Compile Include="Assets/Scripts/CameraViewTest.cs" />
+    <Compile Include="Assets/Scripts/ImpactMarkerPositionFixer.cs" />
     <Compile Include="Assets/Scripts/WebGLBuildTrigger.cs" />
     <Compile Include="Assets/Scripts/CompileTestHelper.cs" />
     <Compile Include="Assets/Scripts/SimpleTargetMarkers.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Assets/Scripts/ChineseFontFixer.cs" />
     <Compile Include="Assets/Scripts/RingVisibilityFixer.cs" />
     <Compile Include="Assets/Scripts/DirectionController.cs" />
+    <Compile Include="Assets/Scripts/ClearBallsBugFixer.cs" />
     <Compile Include="Assets/Scripts/UIIntegrationTest.cs" />
     <Compile Include="Assets/Scripts/UIFeatureSummary.cs" />
     <Compile Include="Assets/Scripts/ImpactMarkerDiagnostic.cs" />

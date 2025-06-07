@@ -59,6 +59,11 @@ public class BounceImpactMarker : MonoBehaviour
     [Tooltip("日志输出间隔（帧数）")]
     public int logFrameInterval = 60; // 每60帧（约1秒）输出一次
 
+    [Header("位置修复集成")]
+    [Tooltip("启用位置修复功能")]
+    public bool enablePositionFix = true;
+    public ImpactMarkerPositionFixer positionFixer;
+
     // 追踪已标记的球体，避免重复标记
     private Dictionary<GameObject, bool> markedBalls = new Dictionary<GameObject, bool>();
     private Dictionary<GameObject, int> ballLastLogFrame = new Dictionary<GameObject, int>(); // 记录每个球最后日志输出的帧数
@@ -72,6 +77,16 @@ public class BounceImpactMarker : MonoBehaviour
         Debug.Log("Press F3 to toggle impact markers");
         Debug.Log("Press F4 to clear all impact markers");
         Debug.Log("Press F5 to create test impact marker");
+
+        // 查找位置修复器
+        if (positionFixer == null)
+        {
+            positionFixer = FindObjectOfType<ImpactMarkerPositionFixer>();
+            if (positionFixer != null)
+            {
+                Debug.Log("✅ 位置修复器已连接");
+            }
+        }
     }
 
     void Update()
@@ -266,8 +281,21 @@ public class BounceImpactMarker : MonoBehaviour
     void CreateImpactMarker(Vector3 impactPoint, float impactSpeed, Vector3 impactVelocity)
     {
         Debug.Log($"=== Creating Impact Marker ===");
-        Debug.Log($"Impact point: {impactPoint}");
+        Debug.Log($"Original impact point: {impactPoint}");
         Debug.Log($"Impact speed: {impactSpeed:F2}m/s");
+
+        // 使用位置修复器修正圆环位置（如果可用）
+        Vector3 correctedPosition = impactPoint;
+        if (enablePositionFix && positionFixer != null)
+        {
+            // 查找触发这个标记的网球
+            GameObject triggerBall = FindRecentlyLandedBall(impactPoint);
+            if (triggerBall != null)
+            {
+                correctedPosition = positionFixer.GetCorrectedImpactPosition(impactPoint, triggerBall);
+                Debug.Log($"🔧 Position corrected from {impactPoint} to {correctedPosition}");
+            }
+        }
 
         // 计算圆环大小（基于速度）
         float ringSize = CalculateRingSize(impactSpeed);
@@ -276,8 +304,8 @@ public class BounceImpactMarker : MonoBehaviour
         GameObject ringMarker = CreateVisibleRingGeometry(ringSize);
         ringMarker.name = "ImpactMarker_Ring";
 
-        // 设置位置（明显抬高确保可见）
-        ringMarker.transform.position = impactPoint + Vector3.up * 0.1f;
+        // 设置修正后的位置（明显抬高确保可见）
+        ringMarker.transform.position = correctedPosition + Vector3.up * 0.1f;
 
         // 设置材质和颜色 - 使用不透明材质
         SetupEnhancedRingMaterial(ringMarker, impactSpeed);
@@ -296,7 +324,37 @@ public class BounceImpactMarker : MonoBehaviour
         }
 
         // 输出详细信息
-        LogImpactDetails(impactPoint, impactSpeed, ringSize);
+        LogImpactDetails(correctedPosition, impactSpeed, ringSize);
+    }
+
+    /// <summary>
+    /// 查找最近落地的网球（用于位置修复）
+    /// </summary>
+    GameObject FindRecentlyLandedBall(Vector3 impactPoint)
+    {
+        GameObject closestBall = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var ballPair in markedBalls)
+        {
+            GameObject ball = ballPair.Key;
+            if (ball != null)
+            {
+                float distance = Vector3.Distance(ball.transform.position, impactPoint);
+                if (distance < closestDistance && distance < 2f) // 2米范围内
+                {
+                    closestDistance = distance;
+                    closestBall = ball;
+                }
+            }
+        }
+
+        if (closestBall != null)
+        {
+            Debug.Log($"🎾 找到关联网球: {closestBall.name}, 距离: {closestDistance:F2}m");
+        }
+
+        return closestBall;
     }
 
     /// <summary>

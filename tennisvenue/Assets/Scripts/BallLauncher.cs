@@ -32,6 +32,9 @@ public class BallLauncher : MonoBehaviour
     public TrajectoryDragController trajectoryDragController;
     public bool enableTrajectoryDrag = true;
 
+    [Header("位置修复集成")]
+    public ImpactMarkerPositionFixer positionFixer;
+
     [Header("调试设置")]
     public bool enableDirectionLogging = false;  // 关闭方向变化日志
 
@@ -117,6 +120,12 @@ public class BallLauncher : MonoBehaviour
         {
             flightTimeTracker = FindObjectOfType<FlightTimeTracker>();
         }
+
+        // 查找位置修复器
+        if (positionFixer == null)
+        {
+            positionFixer = FindObjectOfType<ImpactMarkerPositionFixer>();
+        }
     }
 
     void Update()
@@ -165,7 +174,7 @@ public class BallLauncher : MonoBehaviour
     {
         // 记录发射调用（用于诊断重复发射问题）
         LaunchCallTracker.RecordLaunchCall("BallLauncher.LaunchBall", targetPos);
-        
+
         if (ballPrefab == null || launchPoint == null) return;
 
         GameObject ball = Instantiate(ballPrefab, launchPoint.position, Quaternion.identity);
@@ -191,6 +200,12 @@ public class BallLauncher : MonoBehaviour
         if (flightTimeTracker != null)
         {
             flightTimeTracker.StartFlightTimeTracking();
+        }
+
+        // 通知位置修复器关于网球发射
+        if (positionFixer != null)
+        {
+            positionFixer.OnBallLaunched(ball);
         }
 
         // 记录发射信息和阻力影响

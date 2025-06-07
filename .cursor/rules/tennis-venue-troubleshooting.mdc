@@ -12,10 +12,37 @@ alwaysApply: false
 - **F10**: Auto-setup UI manager via [tennisvenue/Assets/Scripts/AutoSetupUIManager.cs](mdc:tennisvenue/Assets/Scripts/AutoSetupUIManager.cs)
 - **F9**: Comprehensive system diagnostics via [tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs](mdc:tennisvenue/Assets/Scripts/SceneObjectDiagnostic.cs)
 - **F11**: Check UI system status
+- **F8**: Diagnose Clear Balls issues via [tennisvenue/Assets/Scripts/ClearBallsBugFixer.cs](mdc:tennisvenue/Assets/Scripts/ClearBallsBugFixer.cs)
+- **Ctrl+F8**: Fix broken ball launcher state
+- **Shift+F8**: Safe ball clearing (prevents launcher damage)
+- **P**: Show trajectory endpoint coordinates via [tennisvenue/Assets/Scripts/ImpactMarkerPositionFixer.cs](mdc:tennisvenue/Assets/Scripts/ImpactMarkerPositionFixer.cs)
+- **O**: Compare ring markers with trajectory endpoint positions
+- **I**: Toggle impact marker position fix
+- **U**: Toggle trajectory endpoint visualization marker (blue disk)
 
 ## Common Issues Catalog
 
 ### 🚀 Ball Launch Issues
+
+#### Problem: Clear Balls Button Breaks Ball Launcher ⚠️ **NEWLY FIXED**
+**Symptoms**: After clicking "Clear balls" UI button, ball launcher stops working completely
+**Root Cause**: Original clear method was too broad, potentially deleting launcher components or related objects
+**Solution**:
+1. **Immediate Fix**: Press **Ctrl+F8** to restore ball launcher functionality
+2. **Diagnosis**: Press **F8** to check what components may be missing
+3. **Safe Clearing**: Use **Shift+F8** instead of UI "Clear balls" button
+4. **Prevention**: Updated [tennisvenue/Assets/Scripts/TennisVenueUIManager.cs](mdc:tennisvenue/Assets/Scripts/TennisVenueUIManager.cs) and [tennisvenue/Assets/Scripts/SimpleTennisUI.cs](mdc:tennisvenue/Assets/Scripts/SimpleTennisUI.cs) with safer clear methods
+5. **Fixer Script**: [tennisvenue/Assets/Scripts/ClearBallsBugFixer.cs](mdc:tennisvenue/Assets/Scripts/ClearBallsBugFixer.cs) provides comprehensive diagnosis and repair
+
+#### Problem: ImpactMarker_Ring Position Misalignment ⚠️ **NEWLY FIXED**
+**Symptoms**: Impact ring markers appear at different locations than trajectory line endpoint prediction
+**Root Cause**: Different calculation methods between trajectory prediction and actual ball landing detection
+**Solution**:
+1. **Immediate Diagnosis**: Press **P** to show trajectory endpoint coordinates
+2. **Position Comparison**: Press **O** to compare ring and trajectory positions  
+3. **Enable Auto-Fix**: Press **I** to enable position correction (enabled by default)
+4. **Visual Guide**: Press **U** to show blue trajectory endpoint marker
+5. **Implementation**: Uses [tennisvenue/Assets/Scripts/ImpactMarkerPositionFixer.cs](mdc:tennisvenue/Assets/Scripts/ImpactMarkerPositionFixer.cs) to automatically align ring positions with trajectory predictions
 
 #### Problem: Multiple Balls Launching (Double/Triple Launch)
 **Symptoms**: Space key or mouse click launches 2-3 balls simultaneously

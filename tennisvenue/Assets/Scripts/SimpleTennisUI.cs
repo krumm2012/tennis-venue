@@ -242,7 +242,7 @@ public class SimpleTennisUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 清除所有球
+    /// 清除所有球 - 修复版，避免误删重要组件
     /// </summary>
     void ClearBalls()
     {
@@ -251,22 +251,51 @@ public class SimpleTennisUI : MonoBehaviour
 
         foreach (GameObject obj in allObjects)
         {
-            if (obj.name.Contains("TennisBall") || obj.name.Contains("Ball"))
+            // 使用安全的网球识别方法
+            if (IsSafeTennisBall(obj))
             {
-                // 确保对象有物理组件，更可能是真实的网球
-                if (obj.GetComponent<Rigidbody>() != null || obj.GetComponent<Collider>() != null)
-                {
-                    ballsToDestroy.Add(obj);
-                }
+                ballsToDestroy.Add(obj);
             }
         }
 
         foreach (GameObject ball in ballsToDestroy)
         {
+            Debug.Log($"🧹 安全清除网球: {ball.name}");
             Destroy(ball);
         }
 
-        Debug.Log($"🧹 Cleared {ballsToDestroy.Count} tennis balls via UI button");
+        Debug.Log($"🧹 Safely cleared {ballsToDestroy.Count} tennis balls via UI button");
+    }
+
+    /// <summary>
+    /// 判断对象是否是安全的网球(可以被清除)
+    /// </summary>
+    bool IsSafeTennisBall(GameObject obj)
+    {
+        if (obj == null) return false;
+
+        string name = obj.name;
+
+        // 只匹配明确的网球命名模式
+        bool isNameMatch = name.StartsWith("TennisBall") ||
+                          name.StartsWith("Tennis Ball") ||
+                          name.Contains("TennisBall_") ||
+                          name.Contains("QuickTest") ||
+                          name.Contains("SimpleTest");
+
+        if (!isNameMatch) return false;
+
+        // 确保有物理组件
+        bool hasPhysics = obj.GetComponent<Rigidbody>() != null && obj.GetComponent<Collider>() != null;
+        if (!hasPhysics) return false;
+
+        // 排除包含重要组件的对象
+        bool hasCriticalComponents = obj.GetComponent<BallLauncher>() != null ||
+                                   obj.GetComponent<Camera>() != null ||
+                                   obj.GetComponent<Canvas>() != null ||
+                                   obj.GetComponent<CameraController>() != null;
+
+        return !hasCriticalComponents;
     }
 
     /// <summary>
