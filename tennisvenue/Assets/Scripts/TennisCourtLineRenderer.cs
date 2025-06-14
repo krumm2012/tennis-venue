@@ -2,22 +2,27 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// 网球场标识线渲染器
-/// 在地面上绘制标准网球场的白色标识线，线宽10cm
+/// 网球场半场标识线渲染器
+/// 在地面上绘制半场网球场的白色标识线，发球机位于中线位置
+/// 适配场馆尺寸：宽3.5m × 长11m × 高3m
 /// </summary>
 public class TennisCourtLineRenderer : MonoBehaviour
 {
     [Header("线条设置")]
     [SerializeField] private Material lineMaterial;
-    [SerializeField] private float lineWidth = 0.1f; // 10cm线宽
-    [SerializeField] private float lineHeight = 0.05f; // 增加到5cm高度，确保可见性
+    [SerializeField] private float lineWidth = 0.05f; // 10cm线宽
+    [SerializeField] private float lineHeight = 0.05f; // 5cm高度，确保可见性
     [SerializeField] private Color lineColor = Color.white;
 
-    [Header("网球场尺寸 (基于Floor实际尺寸)")]
-    [SerializeField] private float courtLength = 7.8f; // 基于Floor的Z轴尺寸
-    [SerializeField] private float courtWidth = 2.6f; // 基于Floor的X轴尺寸
-    [SerializeField] private float serviceLineDistance = 2f; // 发球线距离网前的距离
-    [SerializeField] private float centerServiceLineLength = 2f; // 中央发球线长度
+    [Header("网球场尺寸 (基于reference.md规格)")]
+    [SerializeField] private float courtLength = 11f; // 场地长度，从中线到底线
+    [SerializeField] private float courtWidth = 3.5f; // 场地宽度，与场馆宽度一致
+    [SerializeField] private float serviceLineDistance = 2.0f; // 发球线距离中线的距离
+    [SerializeField] private float serviceBoxWidth = 1.75f; // 发球区宽度（场地宽度的一半）
+
+    [Header("发球机设置")]
+    [SerializeField] private bool showLauncherZone = true; // 显示发球机区域标识
+    [SerializeField] private float launcherZoneSize = 0.5f; // 发球机区域标识大小
 
     [Header("调试设置")]
     [SerializeField] private bool showDebugInfo = true;
@@ -30,15 +35,15 @@ public class TennisCourtLineRenderer : MonoBehaviour
     {
         if (autoCreateOnStart)
         {
-            CreateTennisCourtLines();
+            CreateHalfCourtLines();
         }
     }
 
     /// <summary>
-    /// 创建网球场标识线
+    /// 创建半场网球场标识线
     /// </summary>
-    [ContextMenu("创建网球场标识线")]
-    public void CreateTennisCourtLines()
+    [ContextMenu("创建半场网球场标识线")]
+    public void CreateHalfCourtLines()
     {
         // 清除现有线条
         ClearExistingLines();
@@ -55,17 +60,22 @@ public class TennisCourtLineRenderer : MonoBehaviour
         // 创建线条材质
         CreateLineMaterial();
 
-        // 创建各种线条
-        CreateBaseLines(); // 底线
+        // 创建半场各种线条
+        CreateCenterLine(); // 中线（发球机位置）
+        CreateBaseLine(); // 底线
         CreateSideLines(); // 边线
-        CreateServiceLines(); // 发球线
-        CreateCenterLines(); // 中线
-        CreateNetLine(); // 网线位置标记
+        CreateServiceLine(); // 发球线
+        CreateServiceBoxLine(); // 发球区中线
+
+        if (showLauncherZone)
+        {
+            CreateLauncherZone(); // 发球机区域标识
+        }
 
         if (showDebugInfo)
         {
-            Debug.Log($"TennisCourtLineRenderer: 成功创建 {lineObjects.Count} 条网球场标识线");
-            LogCourtDimensions();
+            Debug.Log($"TennisCourtLineRenderer: 成功创建 {lineObjects.Count} 条半场网球场标识线");
+            LogHalfCourtDimensions();
         }
     }
 
@@ -82,21 +92,23 @@ public class TennisCourtLineRenderer : MonoBehaviour
             // 获取Floor的实际尺寸
             Vector3 floorScale = floorTransform.localScale;
 
-            // 根据Floor的实际尺寸调整场地尺寸
-            courtLength = floorScale.z * 0.7f; // 使用Floor长度的70%作为场地长度
-            courtWidth = floorScale.x * 0.7f;  // 使用Floor宽度的70%作为场地宽度
+            // 根据reference.md规格设置场地尺寸（宽3.5m × 长11m）
+            // 使用完整场地长度
+            courtWidth = 3.5f; // 固定宽度3.5米
+            courtLength = 11f; // 场地长度11米（从中线到底线）
 
-            // 调整发球线距离
-            serviceLineDistance = courtLength * 0.25f; // 发球线距离为场地长度的25%
-            centerServiceLineLength = courtWidth * 0.5f; // 中央发球线长度为场地宽度的50%
+            // 调整发球线距离和发球区宽度
+            serviceLineDistance = 2.0f; // 发球线距离中线2米
+            serviceBoxWidth = courtWidth / 2f; // 发球区宽度为场地宽度的一半
 
             if (showDebugInfo)
             {
                 Debug.Log($"TennisCourtLineRenderer: 找到Floor对象");
                 Debug.Log($"Floor位置: {floorTransform.position}");
                 Debug.Log($"Floor尺寸: {floorScale}");
-                Debug.Log($"调整后场地尺寸: 长度={courtLength:F2}m, 宽度={courtWidth:F2}m");
-                Debug.Log($"发球线距离: {serviceLineDistance:F2}m");
+                Debug.Log($"场地尺寸: 宽度={courtWidth:F1}m, 长度={courtLength:F1}m");
+                Debug.Log($"发球线距离: {serviceLineDistance:F1}m");
+                Debug.Log($"发球区宽度: {serviceBoxWidth:F1}m");
             }
         }
         else
@@ -115,7 +127,7 @@ public class TennisCourtLineRenderer : MonoBehaviour
             // 使用Unlit材质确保在任何光照条件下都可见
             lineMaterial = new Material(Shader.Find("Unlit/Color"));
             lineMaterial.color = lineColor;
-            lineMaterial.name = "TennisCourtLineMaterial";
+            lineMaterial.name = "HalfCourtLineMaterial";
 
             // 设置渲染模式为不透明
             lineMaterial.SetFloat("_Mode", 0);
@@ -138,88 +150,94 @@ public class TennisCourtLineRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// 创建底线（场地两端的线）
+    /// 创建中线（发球机位置线）
     /// </summary>
-    private void CreateBaseLines()
+    private void CreateCenterLine()
     {
-        float floorZ = floorTransform.position.z;
         float floorY = floorTransform.position.y;
+        float floorZ = floorTransform.position.z;
 
-        // 后底线 (发球机一侧)
-        Vector3 backBaseLinePos = new Vector3(0, floorY + lineHeight, floorZ - courtLength / 2);
-        CreateLine("后底线", backBaseLinePos, courtWidth, lineWidth, 0f);
-
-        // 前底线 (接球一侧)
-        Vector3 frontBaseLinePos = new Vector3(0, floorY + lineHeight, floorZ + courtLength / 2);
-        CreateLine("前底线", frontBaseLinePos, courtWidth, lineWidth, 0f);
+        // 中线位置（发球机位置）
+        Vector3 centerLinePos = new Vector3(0, floorY + lineHeight, floorZ);
+        CreateLine("中线_发球机位置", centerLinePos, courtWidth + 0.4f, lineWidth, 0f); // 稍微超出边线以示重要性
     }
 
     /// <summary>
-    /// 创建边线（场地两侧的线）
+    /// 创建底线（接球端）
+    /// </summary>
+    private void CreateBaseLine()
+    {
+        float floorY = floorTransform.position.y;
+        float floorZ = floorTransform.position.z;
+
+        // 底线位置（接球端，距离中线courtLength距离）
+        Vector3 baseLinePos = new Vector3(0, floorY + lineHeight, floorZ + courtLength);
+        CreateLine("底线", baseLinePos, courtWidth, lineWidth, 0f);
+    }
+
+    /// <summary>
+    /// 创建边线
     /// </summary>
     private void CreateSideLines()
     {
         float floorY = floorTransform.position.y;
         float floorZ = floorTransform.position.z;
 
-        // 左边线
-        Vector3 leftSideLinePos = new Vector3(-courtWidth / 2, floorY + lineHeight, floorZ);
+        // 左边线（从中线到底线）
+        Vector3 leftSideLinePos = new Vector3(-courtWidth / 2, floorY + lineHeight, floorZ + courtLength / 2);
         CreateLine("左边线", leftSideLinePos, lineWidth, courtLength, 90f);
 
-        // 右边线
-        Vector3 rightSideLinePos = new Vector3(courtWidth / 2, floorY + lineHeight, floorZ);
+        // 右边线（从中线到底线）
+        Vector3 rightSideLinePos = new Vector3(courtWidth / 2, floorY + lineHeight, floorZ + courtLength / 2);
         CreateLine("右边线", rightSideLinePos, lineWidth, courtLength, 90f);
     }
 
     /// <summary>
     /// 创建发球线
     /// </summary>
-    private void CreateServiceLines()
+    private void CreateServiceLine()
     {
         float floorY = floorTransform.position.y;
         float floorZ = floorTransform.position.z;
 
-        // 后发球线 (发球机一侧)
-        Vector3 backServiceLinePos = new Vector3(0, floorY + lineHeight, floorZ - serviceLineDistance);
-        CreateLine("后发球线", backServiceLinePos, courtWidth, lineWidth, 0f);
-
-        // 前发球线 (接球一侧)
-        Vector3 frontServiceLinePos = new Vector3(0, floorY + lineHeight, floorZ + serviceLineDistance);
-        CreateLine("前发球线", frontServiceLinePos, courtWidth, lineWidth, 0f);
+        // 发球线（距离中线serviceLineDistance距离）
+        Vector3 serviceLinePos = new Vector3(0, floorY + lineHeight, floorZ + serviceLineDistance);
+        CreateLine("发球线", serviceLinePos, courtWidth, lineWidth, 0f);
     }
 
     /// <summary>
-    /// 创建中线
+    /// 创建发球区中线
     /// </summary>
-    private void CreateCenterLines()
+    private void CreateServiceBoxLine()
     {
         float floorY = floorTransform.position.y;
         float floorZ = floorTransform.position.z;
 
-        // 中央发球线 (从网线到发球线)
-        Vector3 centerServiceLinePos = new Vector3(0, floorY + lineHeight, floorZ);
-        CreateLine("中央发球线", centerServiceLinePos, lineWidth, centerServiceLineLength * 2, 90f);
-
-        // 中线标记 (在底线内侧的短线，避免与底线重叠)
-        float centerMarkOffset = 0.3f; // 距离底线30cm
-        Vector3 backCenterMarkPos = new Vector3(0, floorY + lineHeight, floorZ - courtLength / 2 + centerMarkOffset);
-        CreateLine("后中线标记", backCenterMarkPos, lineWidth, 0.2f, 90f);
-
-        Vector3 frontCenterMarkPos = new Vector3(0, floorY + lineHeight, floorZ + courtLength / 2 - centerMarkOffset);
-        CreateLine("前中线标记", frontCenterMarkPos, lineWidth, 0.2f, 90f);
+        // 发球区中线（从中线到发球线，垂直分割发球区）
+        Vector3 serviceBoxLinePos = new Vector3(0, floorY + lineHeight, floorZ + serviceLineDistance / 2);
+        CreateLine("发球区中线", serviceBoxLinePos, lineWidth, serviceLineDistance, 90f);
     }
 
     /// <summary>
-    /// 创建网线位置标记
+    /// 创建发球机区域标识
     /// </summary>
-    private void CreateNetLine()
+    private void CreateLauncherZone()
     {
         float floorY = floorTransform.position.y;
         float floorZ = floorTransform.position.z;
 
-        // 网线位置 (场地中央)
-        Vector3 netLinePos = new Vector3(0, floorY + lineHeight, floorZ);
-        CreateLine("网线标记", netLinePos, courtWidth + 0.4f, lineWidth, 0f); // 稍微超出边线
+        // 发球机区域标识（在中线位置创建一个小方框）
+        Vector3 launcherZonePos = new Vector3(0, floorY + lineHeight + 0.01f, floorZ - 0.2f); // 稍微向后偏移
+
+        // 创建发球机区域的四条边
+        CreateLine("发球机区域_前", new Vector3(0, launcherZonePos.y, launcherZonePos.z + launcherZoneSize/2),
+                   launcherZoneSize, lineWidth, 0f);
+        CreateLine("发球机区域_后", new Vector3(0, launcherZonePos.y, launcherZonePos.z - launcherZoneSize/2),
+                   launcherZoneSize, lineWidth, 0f);
+        CreateLine("发球机区域_左", new Vector3(-launcherZoneSize/2, launcherZonePos.y, launcherZonePos.z),
+                   lineWidth, launcherZoneSize, 90f);
+        CreateLine("发球机区域_右", new Vector3(launcherZoneSize/2, launcherZonePos.y, launcherZonePos.z),
+                   lineWidth, launcherZoneSize, 90f);
     }
 
     /// <summary>
@@ -228,7 +246,7 @@ public class TennisCourtLineRenderer : MonoBehaviour
     private void CreateLine(string lineName, Vector3 position, float width, float length, float rotationY)
     {
         GameObject lineObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        lineObj.name = $"TennisCourtLine_{lineName}";
+        lineObj.name = $"HalfCourtLine_{lineName}";
 
         // 设置父对象为Floor，这样线条会跟随Floor移动
         lineObj.transform.SetParent(floorTransform);
@@ -274,7 +292,7 @@ public class TennisCourtLineRenderer : MonoBehaviour
         if (showDebugInfo)
         {
             Vector3 finalWorldPos = lineObj.transform.position;
-            Debug.Log($"TennisCourtLineRenderer: 创建线条 '{lineName}' - 最终世界位置: ({finalWorldPos.x:F2}, {finalWorldPos.y:F2}, {finalWorldPos.z:F2}), 本地位置: ({localPosition.x:F2}, {localPosition.y:F2}, {localPosition.z:F2}), 本地缩放: ({localScale.x:F2}, {localScale.y:F2}, {localScale.z:F2})");
+            Debug.Log($"TennisCourtLineRenderer: 创建线条 '{lineName}' - 最终世界位置: ({finalWorldPos.x:F2}, {finalWorldPos.y:F2}, {finalWorldPos.z:F2})");
         }
     }
 
@@ -304,7 +322,7 @@ public class TennisCourtLineRenderer : MonoBehaviour
         Transform[] children = GetComponentsInChildren<Transform>();
         foreach (Transform child in children)
         {
-            if (child != this.transform && child.name.StartsWith("TennisCourtLine_"))
+            if (child != this.transform && (child.name.StartsWith("TennisCourtLine_") || child.name.StartsWith("HalfCourtLine_")))
             {
                 if (Application.isPlaying)
                 {
@@ -326,14 +344,16 @@ public class TennisCourtLineRenderer : MonoBehaviour
     /// <summary>
     /// 输出场地尺寸信息
     /// </summary>
-    private void LogCourtDimensions()
+    private void LogHalfCourtDimensions()
     {
         Debug.Log($"=== 网球场尺寸信息 ===");
-        Debug.Log($"场地长度: {courtLength}m");
-        Debug.Log($"场地宽度: {courtWidth}m");
-        Debug.Log($"发球线距离: {serviceLineDistance}m");
+        Debug.Log($"场地宽度: {courtWidth}m (与场馆宽度一致)");
+        Debug.Log($"场地长度: {courtLength}m (从中线到底线)");
+        Debug.Log($"发球线距离: {serviceLineDistance}m (距离中线)");
+        Debug.Log($"发球区宽度: {serviceBoxWidth}m");
         Debug.Log($"线条宽度: {lineWidth}m (10cm)");
         Debug.Log($"线条高度: {lineHeight}m");
+        Debug.Log($"发球机位置: 场地中线 (Z坐标: {floorTransform.position.z})");
         Debug.Log($"地面位置: {(floorTransform != null ? floorTransform.position.ToString() : "未知")}");
     }
 
@@ -345,7 +365,7 @@ public class TennisCourtLineRenderer : MonoBehaviour
         lineColor = newColor;
         if (lineMaterial != null)
         {
-            lineMaterial.color = lineColor;
+            lineMaterial.color = new Color(newColor.r * 1.5f, newColor.g * 1.5f, newColor.b * 1.5f, newColor.a);
         }
     }
 
@@ -358,8 +378,17 @@ public class TennisCourtLineRenderer : MonoBehaviour
         // 重新创建线条以应用新宽度
         if (lineObjects.Count > 0)
         {
-            CreateTennisCourtLines();
+            CreateHalfCourtLines();
         }
+    }
+
+    /// <summary>
+    /// 切换发球机区域显示
+    /// </summary>
+    public void ToggleLauncherZone(bool show)
+    {
+        showLauncherZone = show;
+        CreateHalfCourtLines(); // 重新创建线条
     }
 
     /// <summary>
@@ -376,6 +405,10 @@ public class TennisCourtLineRenderer : MonoBehaviour
         lineWidth = Mathf.Max(lineWidth, 0.01f);
         // 确保线高度合理
         lineHeight = Mathf.Max(lineHeight, 0.001f);
+        // 确保场地尺寸合理
+        courtWidth = Mathf.Max(courtWidth, 1f);
+        courtLength = Mathf.Max(courtLength, 1f);
+        serviceLineDistance = Mathf.Clamp(serviceLineDistance, 1f, courtLength - 0.5f);
     }
 
     void OnDrawGizmosSelected()
@@ -384,13 +417,27 @@ public class TennisCourtLineRenderer : MonoBehaviour
 
         // 绘制场地边界
         Gizmos.color = Color.yellow;
-        Vector3 center = new Vector3(0, floorTransform.position.y + 0.1f, floorTransform.position.z);
+        Vector3 center = new Vector3(0, floorTransform.position.y + 0.1f, floorTransform.position.z + courtLength / 2);
         Gizmos.DrawWireCube(center, new Vector3(courtWidth, 0.01f, courtLength));
 
-        // 绘制网线位置
+        // 绘制中线位置（发球机位置）
         Gizmos.color = Color.red;
-        Vector3 netPos = new Vector3(0, floorTransform.position.y + 0.15f, floorTransform.position.z);
-        Gizmos.DrawLine(new Vector3(-courtWidth/2 - 0.2f, netPos.y, netPos.z),
-                       new Vector3(courtWidth/2 + 0.2f, netPos.y, netPos.z));
+        Vector3 centerLinePos = new Vector3(0, floorTransform.position.y + 0.15f, floorTransform.position.z);
+        Gizmos.DrawLine(new Vector3(-courtWidth/2 - 0.2f, centerLinePos.y, centerLinePos.z),
+                       new Vector3(courtWidth/2 + 0.2f, centerLinePos.y, centerLinePos.z));
+
+        // 绘制发球机区域
+        if (showLauncherZone)
+        {
+            Gizmos.color = Color.blue;
+            Vector3 launcherPos = new Vector3(0, floorTransform.position.y + 0.2f, floorTransform.position.z - 0.2f);
+            Gizmos.DrawWireCube(launcherPos, new Vector3(launcherZoneSize, 0.01f, launcherZoneSize));
+        }
+
+        // 绘制发球线
+        Gizmos.color = Color.green;
+        Vector3 serviceLinePos = new Vector3(0, floorTransform.position.y + 0.12f, floorTransform.position.z + serviceLineDistance);
+        Gizmos.DrawLine(new Vector3(-courtWidth/2, serviceLinePos.y, serviceLinePos.z),
+                       new Vector3(courtWidth/2, serviceLinePos.y, serviceLinePos.z));
     }
 }

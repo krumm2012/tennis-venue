@@ -26,6 +26,11 @@ public class FlightTimeTracker : MonoBehaviour
     private GameObject currentBall;
     private List<float> flightHistory = new List<float>();  // 飞行历史记录
 
+    // 新增：发球机发球点到第一落球点的追踪变量
+    private Vector3 launchPosition;      // 发球机发球点位置
+    private Vector3 firstBouncePosition; // 第一落球点位置
+    private bool hasRecordedFirstBounce = false; // 是否已记录第一次落球点
+
     void Start()
     {
         InitializeFlightTimeUI();
@@ -205,18 +210,23 @@ public class FlightTimeTracker : MonoBehaviour
         isTrackingFlight = true;
         flightStartTime = Time.time;
 
+        // 新增：记录发球机发球点位置
+        launchPosition = ball.transform.position;
+        hasRecordedFirstBounce = false; // 重置第一落球点记录标志
+
         if (flightTimeText != null)
             flightTimeText.color = Color.green;
 
         if (logToConsole)
         {
             Debug.Log($"🚀 开始追踪网球飞行: {ball.name}");
-            Debug.Log($"   📍 起始位置: {ball.transform.position}");
+            Debug.Log($"   📍 发球机发球点位置: {launchPosition}");
 
             Rigidbody rb = ball.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 Debug.Log($"   🏃 初始速度: {rb.velocity.magnitude:F2} m/s");
+                Debug.Log($"   🎯 开始记录发球机到第一落球点的飞行轨迹...");
             }
         }
     }
@@ -280,6 +290,25 @@ public class FlightTimeTracker : MonoBehaviour
             float height = currentBall.transform.position.y;
             float flightTime = Time.time - flightStartTime;
 
+            // 新增：检测第一次落球点（网球接触地面或接近地面时）
+            if (!hasRecordedFirstBounce && height <= 0.1f && speed > 0.5f)
+            {
+                firstBouncePosition = currentBall.transform.position;
+                hasRecordedFirstBounce = true;
+
+                if (logToConsole)
+                {
+                    Debug.Log($"🎯 检测到第一落球点: {firstBouncePosition}");
+                    Debug.Log($"   ⏱️ 发球机到第一落球点飞行时间: {flightTime:F3}s");
+
+                    // 计算发球机到第一落球点的直线距离和实际飞行距离
+                    float straightDistance = Vector3.Distance(launchPosition, firstBouncePosition);
+                    Debug.Log($"   📏 发球机到第一落球点直线距离: {straightDistance:F2}m");
+                    Debug.Log($"   📐 水平距离: {Vector3.Distance(new Vector3(launchPosition.x, 0, launchPosition.z), new Vector3(firstBouncePosition.x, 0, firstBouncePosition.z)):F2}m");
+                    Debug.Log($"   📊 高度差: {(launchPosition.y - firstBouncePosition.y):F2}m");
+                }
+            }
+
             // 增强的停止条件检测
             if (speed < minTrackingSpeed || height < minTrackingHeight || flightTime > maxTrackingTime)
             {
@@ -293,6 +322,7 @@ public class FlightTimeTracker : MonoBehaviour
         if (isTrackingFlight)
         {
             float totalFlightTime = Time.time - flightStartTime;
+            Vector3 finalPosition = currentBall != null ? currentBall.transform.position : Vector3.zero;
 
             // 记录到历史
             flightHistory.Add(totalFlightTime);
@@ -319,10 +349,46 @@ public class FlightTimeTracker : MonoBehaviour
                     ballStatusText.text = "⚾ 网球状态: 已落地 🎯";
             }
 
+            // 新增：输出发球机发球点到第一落球点的详细飞行日志
             if (logToConsole)
             {
-                Debug.Log($"✅ 飞行结束，总时间: {totalFlightTime:F2}s");
-                Debug.Log($"📈 历史记录: 共追踪{flightHistory.Count}次飞行");
+                Debug.Log("🏆 ===== 发球机飞行轨迹完整报告 =====");
+                Debug.Log($"   ⏱️ 总飞行时间: {totalFlightTime:F3}s");
+                Debug.Log($"   🚀 发球机发球点: {launchPosition}");
+
+                if (hasRecordedFirstBounce)
+                {
+                    Debug.Log($"   🎯 第一落球点: {firstBouncePosition}");
+
+                    // 计算详细的飞行数据
+                    float straightDistance = Vector3.Distance(launchPosition, firstBouncePosition);
+                    float horizontalDistance = Vector3.Distance(
+                        new Vector3(launchPosition.x, 0, launchPosition.z),
+                        new Vector3(firstBouncePosition.x, 0, firstBouncePosition.z)
+                    );
+                    float heightDifference = launchPosition.y - firstBouncePosition.y;
+                    float averageSpeed = straightDistance / totalFlightTime;
+
+                    Debug.Log($"   📏 发球机到第一落球点直线距离: {straightDistance:F2}m");
+                    Debug.Log($"   📐 水平飞行距离: {horizontalDistance:F2}m");
+                    Debug.Log($"   📊 垂直高度差: {heightDifference:F2}m");
+                    Debug.Log($"   🏃 平均飞行速度: {averageSpeed:F2}m/s");
+
+                    // 计算飞行角度
+                    if (horizontalDistance > 0)
+                    {
+                        float launchAngle = Mathf.Atan(heightDifference / horizontalDistance) * Mathf.Rad2Deg;
+                        Debug.Log($"   📐 发射角度: {launchAngle:F1}°");
+                    }
+                }
+                else
+                {
+                    Debug.Log($"   ⚠️ 未检测到明确的第一落球点");
+                    Debug.Log($"   🏁 最终位置: {finalPosition}");
+                }
+
+                Debug.Log($"   📈 历史记录: 共追踪{flightHistory.Count}次飞行");
+                Debug.Log("==========================================");
             }
         }
     }

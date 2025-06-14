@@ -53,7 +53,7 @@ public class LineVisibilityTest : MonoBehaviour
 
         foreach (GameObject obj in lineObjects)
         {
-            if (obj.name.StartsWith("TennisCourtLine_"))
+            if (obj.name.StartsWith("TennisCourtLine_") || obj.name.StartsWith("HalfCourtLine_"))
             {
                 lineCount++;
                 if (showLineInfo)
@@ -96,8 +96,8 @@ public class LineVisibilityTest : MonoBehaviour
         if (lineRenderer != null)
         {
             lineRenderer.ClearExistingLines();
-            lineRenderer.CreateTennisCourtLines();
-            Debug.Log("✅ 线条重新创建完成");
+            lineRenderer.CreateHalfCourtLines();
+            Debug.Log("✅ 半场线条重新创建完成");
         }
         else
         {
@@ -119,13 +119,13 @@ public class LineVisibilityTest : MonoBehaviour
             int lineCount = lineRenderer.GetLineCount();
             Debug.Log($"✅ TennisCourtLineRenderer找到，当前线条数量: {lineCount}");
 
-            if (lineCount == 10)
+            if (lineCount >= 6 && lineCount <= 10)
             {
-                Debug.Log("🎯 线条数量正确！建议按T键切换到俯视角度查看完整场地");
+                Debug.Log("🎯 半场线条数量正确！建议按T键切换到俯视角度查看半场布局");
             }
             else
             {
-                Debug.Log($"⚠️ 线条数量异常，预期10条，实际{lineCount}条");
+                Debug.Log($"⚠️ 线条数量异常，预期6-10条，实际{lineCount}条");
             }
         }
         else

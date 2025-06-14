@@ -64,9 +64,9 @@ public class TennisCourtLineTest : MonoBehaviour
             return;
         }
 
-        Debug.Log("🎨 开始创建网球场线条...");
-        lineRenderer.CreateTennisCourtLines();
-        Debug.Log("✅ 线条创建命令已发送");
+        Debug.Log("🎨 开始创建半场网球场线条...");
+        lineRenderer.CreateHalfCourtLines();
+        Debug.Log("✅ 半场线条创建命令已发送");
     }
 
     /// <summary>
@@ -100,9 +100,9 @@ public class TennisCourtLineTest : MonoBehaviour
             return;
         }
 
-        Debug.Log("✅ 找到TennisCourtLineRenderer，开始创建线条...");
-        testRenderer.CreateTennisCourtLines();
-        Debug.Log("🎾 线条创建命令已发送");
+        Debug.Log("✅ 找到TennisCourtLineRenderer，开始创建半场线条...");
+        testRenderer.CreateHalfCourtLines();
+        Debug.Log("🎾 半场线条创建命令已发送");
     }
 
     /// <summary>
@@ -117,11 +117,11 @@ public class TennisCourtLineTest : MonoBehaviour
             return;
         }
 
-        Debug.Log("TennisCourtLineTest: 开始创建网球场标识线...");
-        lineRenderer.CreateTennisCourtLines();
+        Debug.Log("TennisCourtLineTest: 开始创建半场网球场标识线...");
+        lineRenderer.CreateHalfCourtLines();
 
         int lineCount = lineRenderer.GetLineCount();
-        Debug.Log($"TennisCourtLineTest: 成功创建 {lineCount} 条线条");
+        Debug.Log($"TennisCourtLineTest: 成功创建 {lineCount} 条半场线条");
 
         // 输出控制说明
         LogControlInstructions();
@@ -149,10 +149,11 @@ public class TennisCourtLineTest : MonoBehaviour
     /// </summary>
     private void LogControlInstructions()
     {
-        Debug.Log("=== 网球场线条控制说明 ===");
-        Debug.Log($"按 {testKey} 键: 创建/重新创建网球场线条");
+        Debug.Log("=== 半场网球场线条控制说明 ===");
+        Debug.Log($"按 {testKey} 键: 创建/重新创建半场网球场线条");
         Debug.Log($"按 {clearKey} 键: 清除所有线条");
-        Debug.Log("按 T 键: 手动触发线条创建");
+        Debug.Log("按 T 键: 手动触发半场线条创建");
+        Debug.Log("按 H 键: 使用新的快速设置创建半场线条");
         Debug.Log("右键点击TennisCourtLineRenderer组件可使用上下文菜单");
         Debug.Log("在Inspector中可以调整线条参数");
     }
@@ -163,10 +164,11 @@ public class TennisCourtLineTest : MonoBehaviour
         if (lineRenderer != null)
         {
             GUILayout.BeginArea(new Rect(10, Screen.height - 120, 300, 100));
-            GUILayout.Label("网球场线条控制:");
-            GUILayout.Label($"按 {testKey} 键: 创建线条");
+            GUILayout.Label("半场网球场线条控制:");
+            GUILayout.Label($"按 {testKey} 键: 创建半场线条");
             GUILayout.Label($"按 {clearKey} 键: 清除线条");
             GUILayout.Label("按 T 键: 手动触发线条创建");
+            GUILayout.Label("按 H 键: 快速设置半场线条");
             GUILayout.EndArea();
         }
     }
