@@ -106,17 +106,72 @@ public class CurtainImageApplicator : MonoBehaviour
     /// </summary>
     void CreateTextureFromUserImage()
     {
-        // 这里模拟用户提供的网球场地图片
-        // 实际使用时，用户需要将图片放在Assets/Textures/文件夹中
         Debug.Log("🖼️ 正在处理用户提供的网球场地图片...");
 
-        // 创建基于用户图片描述的纹理
-        CreateTennisCourtTextureFromDescription();
+        // 首先尝试加载真实的用户图片文件
+        if (LoadUserProvidedImageFile())
+        {
+            Debug.Log("✅ 成功加载用户提供的图片文件");
+        }
+        else
+        {
+            Debug.Log("⚠️ 未找到用户图片文件，使用程序生成的图片");
+            // 创建基于用户图片描述的纹理
+            CreateTennisCourtTextureFromDescription();
+        }
 
         // 创建材质
         CreateImageBasedMaterial();
 
         Debug.Log("✅ 用户图片纹理创建完成");
+    }
+
+    /// <summary>
+    /// 加载用户提供的图片文件
+    /// </summary>
+    bool LoadUserProvidedImageFile()
+    {
+        // 尝试从多个可能的路径加载用户图片
+        string[] possiblePaths = {
+            "Assets/Textures/UserCurtainImage.png",
+            "Assets/Textures/tennis_court_image.png",
+            "Assets/Images/curtain_image.png",
+            "Assets/UserProvided/curtain.png",
+            "UserCurtainImage.png"
+        };
+
+        foreach (string path in possiblePaths)
+        {
+            // 尝试作为Resources加载
+            Texture2D loadedTexture = Resources.Load<Texture2D>(path.Replace("Assets/", "").Replace(".png", ""));
+            if (loadedTexture != null)
+            {
+                userProvidedTexture = loadedTexture;
+                Debug.Log($"✅ 从Resources加载图片: {path}");
+                return true;
+            }
+
+            // 尝试从文件系统加载
+            if (System.IO.File.Exists(path))
+            {
+                try
+                {
+                    byte[] imageData = System.IO.File.ReadAllBytes(path);
+                    userProvidedTexture = new Texture2D(2, 2);
+                    if (userProvidedTexture.LoadImage(imageData))
+                    {
+                        Debug.Log($"✅ 从文件系统加载图片: {path}");
+                        return true;
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"⚠️ 加载图片失败 {path}: {e.Message}");
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

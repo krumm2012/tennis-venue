@@ -17,12 +17,21 @@ public class CurtainImageQuickSetup : MonoBehaviour
     public KeyCode resetKey = KeyCode.F12;
 
     private CurtainImageApplicator imageApplicator;
+    private AttachmentImageHandler attachmentHandler;
+    private FloorColorFixer floorFixer;
+    private UIPanelLayoutManager layoutManager;
     private bool isImageApplied = false;
 
     void Start()
     {
         Debug.Log("=== 幕布图片快速设置器已加载 ===");
         ShowQuickInstructions();
+
+        // 自动修复地面颜色
+        FixFloorColorOnStart();
+
+        // 自动应用左右布局
+        ApplySideLayoutOnStart();
     }
 
     void Update()
@@ -59,7 +68,24 @@ public class CurtainImageQuickSetup : MonoBehaviour
     {
         Debug.Log("🚀 开始一键应用用户网球场地图片...");
 
-        // 查找或创建CurtainImageApplicator组件
+        // 首先尝试使用附件图片处理器
+        if (attachmentHandler == null)
+        {
+            attachmentHandler = FindObjectOfType<AttachmentImageHandler>();
+
+            if (attachmentHandler == null)
+            {
+                // 创建新的AttachmentImageHandler
+                GameObject attachmentObj = new GameObject("AttachmentImageHandler");
+                attachmentHandler = attachmentObj.AddComponent<AttachmentImageHandler>();
+                Debug.Log("✅ 已创建AttachmentImageHandler组件");
+            }
+        }
+
+        // 使用附件图片处理器保存并应用图片
+        attachmentHandler.SaveAndApplyAttachmentImage();
+
+        // 查找或创建CurtainImageApplicator组件作为备用
         if (imageApplicator == null)
         {
             imageApplicator = FindObjectOfType<CurtainImageApplicator>();
@@ -269,16 +295,21 @@ public class CurtainImageQuickSetup : MonoBehaviour
     void ShowQuickInstructions()
     {
         Debug.Log("=== 幕布图片快速设置使用说明 ===");
-        Debug.Log($"🖼️ {quickApplyKey}键 - 一键应用用户网球场地图片");
+        Debug.Log($"🖼️ {quickApplyKey}键 - 一键应用附件网球场地图片");
         Debug.Log($"🔍 {diagnosticKey}键 - 诊断当前幕布状态");
         Debug.Log($"🔄 {resetKey}键 - 重置幕布为原始状态");
+        Debug.Log($"🔧 F11键 - 修复地面颜色（浅蓝色）");
+        Debug.Log($"🔄 F13键 - 重新布局面板到左右两侧");
         Debug.Log("");
         Debug.Log("📋 应用后的效果:");
         Debug.Log("   ✅ 宽度: 3.5米 (用户要求)");
         Debug.Log("   ✅ 厚度: 0.005 (用户要求)");
         Debug.Log("   ✅ 顶部对齐显示");
-        Debug.Log("   ✅ 蓝色网球场地图案");
-        Debug.Log("   ✅ HeHaa文字和分数圆圈");
+        Debug.Log("   ✅ 蓝色网球场地背景");
+        Debug.Log("   ✅ 粉色边框");
+        Debug.Log("   ✅ HeHaa文字（顶部）");
+        Debug.Log("   ✅ 分数圆圈：20, 20, 50, 30, 50");
+        Debug.Log("   ✅ 二维码区域（右下角）");
         Debug.Log("   ✅ 网球反弹功能");
         Debug.Log("");
         Debug.Log("💡 也可在Inspector中使用右键菜单功能");
@@ -336,6 +367,54 @@ public class CurtainImageQuickSetup : MonoBehaviour
 
         // 6秒后清理测试球
         Destroy(testBall, 6f);
+    }
+
+    /// <summary>
+    /// 启动时修复地面颜色
+    /// </summary>
+    void FixFloorColorOnStart()
+    {
+        Debug.Log("🔧 正在修复地面颜色...");
+
+        // 查找或创建FloorColorFixer
+        if (floorFixer == null)
+        {
+            floorFixer = FindObjectOfType<FloorColorFixer>();
+
+            if (floorFixer == null)
+            {
+                GameObject floorFixObj = new GameObject("FloorColorFixer");
+                floorFixer = floorFixObj.AddComponent<FloorColorFixer>();
+                Debug.Log("✅ 已创建FloorColorFixer组件");
+            }
+        }
+
+        // 修复地面颜色
+        floorFixer.FixFloorColor();
+    }
+
+    /// <summary>
+    /// 启动时应用左右布局
+    /// </summary>
+    void ApplySideLayoutOnStart()
+    {
+        Debug.Log("🔄 正在应用左右布局...");
+
+        // 查找或创建UIPanelLayoutManager
+        if (layoutManager == null)
+        {
+            layoutManager = FindObjectOfType<UIPanelLayoutManager>();
+
+            if (layoutManager == null)
+            {
+                GameObject layoutObj = new GameObject("UIPanelLayoutManager");
+                layoutManager = layoutObj.AddComponent<UIPanelLayoutManager>();
+                Debug.Log("✅ 已创建UIPanelLayoutManager组件");
+            }
+        }
+
+        // 应用左右布局
+        layoutManager.ApplySideLayout();
     }
 
     /// <summary>
